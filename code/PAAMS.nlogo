@@ -2,10 +2,13 @@ extensions [
   gis
 ]
 
+breed [corals coral]
 
 globals [
   countries-dataset
+  corals-dataset
   plastic-shore-data
+  microplastic-as-data
   currents-data
   mouse-clicked?
   patches-with-no-data
@@ -14,6 +17,12 @@ globals [
 turtles-own [
   t_lat
   t_lon
+]
+
+corals-own [
+  t_lat
+  t_lon
+  prob
 ]
 
 patches-own [
@@ -296,6 +305,42 @@ to clean-plastic                   ; clears all the plastic.
   ask turtles [ die ]
 end
 
+to add-coral-from-data
+  reset-timer
+  set corals-dataset gis:load-dataset "../data/WCMC008_CoralReef2018_Py_v4_10percent/WCMC008_CoralReef2018_Py_v4_10percent.shp"
+  ;set corals-dataset gis:load-dataset  "../data/WCMC008_CoralReefs2018/01_Data/WCMC008_CoralReef2018_Py_v4_1.shp"
+  print gis:property-names corals-dataset
+  print  gis:shape-type-of corals-dataset
+  gis:apply-coverage corals-dataset "GIS_AREA_K" area                                   ; GIS shape file has SQKM feild which has area of the country
+
+
+  ;let microplastic-long-coord gis:property-value vector-feature "Longitude"
+  ;let microplastic-lat-coord gis:property-value vector-feature "Latitude"
+  ;let countofmicroplastic gis:property-value vector-feature "Total_Piec"
+
+  ask patches
+  [
+    if (area > 0 )                                                               ; Assigning white color to land and blue to ocean
+    [ set pcolor red]
+  ]
+
+  ;foreach gis:feature-list-of corals-dataset [ this-vector-feature ->
+  ;  let curr-area gis:property-value this-vector-feature "GIS_AREA_K"
+  ;  if (curr-area > 0)
+  ;  [
+  ;    gis:create-turtles-inside-polygon this-vector-feature corals 10
+  ;    [
+  ;      set size 3
+  ;      set t_lat p_lat
+  ;      set t_lon p_long
+  ;      set prob random-float 1
+  ;    ]
+  ;  ]
+  ;]
+
+  type "Elapsed seconds loading corals dataset: " type timer type "\n"
+
+end
 
 to add-plastic-from-data                                                ; Creates plastic for the area selected
   if plastic-data  = "atlantic"
@@ -363,12 +408,98 @@ to fetch-plastic-data-australia [plastic-long-coord plastic-lat-coord vector-fea
 end
 
 
+to add-microplastic-from-data                                                ; Creates microplastic for the area selected
+  if microplastic-data  = "AdventureScientits"
+  [
+    add-microplastic-from-data-adventure-scientits
+  ]
+  if microplastic-data = "SEA"
+  [
+     ; add-microplastic-from-data-SEA
+    show "This dataset is too big and could break the program. Uncomment it."
+  ]
+  if microplastic-data = "GEOMAR"
+  [
+    add-microplastic-from-data-GEOMAR
+  ]
+end
+
+
+to add-microplastic-from-data-adventure-scientits                            ; Reads shape file and creates turtles at lat long fetched from shape data
+
+  set microplastic-as-data gis:load-dataset "../data/AdventureScientist_microplastic/AdventureScientist_microplastic.shp"
+  foreach gis:feature-list-of microplastic-as-data
+  [
+    vector-feature ->
+    let microplastic-long-coord gis:property-value vector-feature "Longitude"
+    let microplastic-lat-coord gis:property-value vector-feature "Latitude"
+    let countofmicroplastic gis:property-value vector-feature "Total_Piec"
+    let scale 1     ; 1 because is microplastic
+    if check-if-inside-world-limits microplastic-long-coord microplastic-lat-coord
+    [ create-turtles-from-data microplastic-long-coord microplastic-lat-coord countofmicroplastic "none" scale ]
+  ]
+
+end
+
+
+to add-microplastic-from-data-SEA
+
+  set microplastic-as-data gis:load-dataset "../data/SEA_microplastic/SEA_microplastic.shp"
+  foreach gis:feature-list-of microplastic-as-data
+  [
+    vector-feature ->
+    let microplastic-long-coord gis:property-value vector-feature "Long_deg_"
+    let microplastic-lat-coord gis:property-value vector-feature "Lat_deg_"
+    let countofmicroplastic gis:property-value vector-feature "Pieces_KM2"
+    let scale 1     ; 1 because is microplastic
+    if check-if-inside-world-limits microplastic-long-coord microplastic-lat-coord
+    [ create-turtles-from-data microplastic-long-coord microplastic-lat-coord countofmicroplastic "none" scale ]
+  ]
+
+end
+
+
+to add-microplastic-from-data-GEOMAR
+
+  set microplastic-as-data gis:load-dataset "../data/GEOMAR_microplastic/GEOMAR_microplastic.shp"
+  foreach gis:feature-list-of microplastic-as-data
+  [
+    vector-feature ->
+    let microplastic-long-coord gis:property-value vector-feature "Longitude"
+    let microplastic-lat-coord gis:property-value vector-feature "Latitude"
+    let countofmicroplastic gis:property-value vector-feature "MP_conc__p"
+    let scale 1     ; 1 because is microplastic
+    if check-if-inside-world-limits microplastic-long-coord microplastic-lat-coord
+    [ create-turtles-from-data microplastic-long-coord microplastic-lat-coord countofmicroplastic "none" scale ]
+  ]
+
+end
+
+
+to-report check-if-inside-world-limits [long-coord lat-coord]
+  ifelse (long-coord > -180) and (long-coord < 180) and
+         (lat-coord > -60) and (lat-coord < 72)
+    [ report true ]
+    [ report false ]
+end
+
 
 to create-turtles-from-data [plastic-long-coord plastic-lat-coord plastic-count plastic-color scale]      ; Function to create turtles from the shape file data
 
-  if (plastic-count != nobody) and (plastic-count != "") and (read-from-string plastic-count != 0)
+  let plastic-count-num 0
+  ifelse is-string? plastic-count
   [
-    create-turtles int (read-from-string plastic-count / scale)
+    if (plastic-count != nobody) and (plastic-count != "") [
+      set plastic-count-num read-from-string plastic-count
+    ]
+  ]
+  [
+    set plastic-count-num  plastic-count
+  ]
+
+  if (plastic-count-num != 0)
+  [
+    create-turtles int (plastic-count-num / scale)
     [
     set size 2
     set xcor plastic-long-coord
@@ -469,10 +600,10 @@ NIL
 0
 
 BUTTON
-29
-271
-206
-304
+28
+384
+205
+417
 NIL
 add-plastic-rand
 NIL
@@ -486,10 +617,10 @@ NIL
 1
 
 BUTTON
-28
-315
-395
-348
+27
+428
+394
+461
 NIL
 plastic-movement
 T
@@ -503,10 +634,10 @@ NIL
 1
 
 BUTTON
-31
-228
-208
-261
+30
+341
+207
+374
 NIL
 add-plastic-from-mouse
 T
@@ -520,10 +651,10 @@ NIL
 1
 
 MONITOR
-142
-360
-249
-405
+141
+473
+248
+518
 plastic
 count turtles
 17
@@ -531,10 +662,10 @@ count turtles
 11
 
 SLIDER
-216
-228
-398
-261
+215
+341
+397
+374
 plastic-quantity
 plastic-quantity
 0
@@ -597,10 +728,10 @@ NIL
 1
 
 BUTTON
-214
-272
-396
-305
+213
+385
+395
+418
 clean plastic
 clean-plastic
 NIL
@@ -655,18 +786,62 @@ CHOOSER
 plastic-data
 plastic-data
 "atlantic" "australia"
-1
+0
 
 SWITCH
-267
-366
-394
-399
+266
+479
+393
+512
 scale-mag?
 scale-mag?
 0
 1
 -1000
+
+BUTTON
+212
+235
+399
+268
+NIL
+add-microplastic-from-data
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+CHOOSER
+23
+231
+208
+276
+microplastic-data
+microplastic-data
+"AdventureScientits" "SEA" "GEOMAR"
+2
+
+BUTTON
+31
+300
+206
+333
+NIL
+add-coral-from-data
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ![Plastic Movement](file:../data/info/h.jpg)
@@ -1061,7 +1236,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.2.0
+NetLogo 6.2.1
 @#$#@#$#@
 setup
 display-cities
