@@ -2,13 +2,10 @@ extensions [
   gis
 ]
 
-breed [corals coral]
 
 globals [
   countries-dataset
-  corals-dataset
   plastic-shore-data
-  microplastic-as-data
   currents-data
   mouse-clicked?
   patches-with-no-data
@@ -17,12 +14,8 @@ globals [
 turtles-own [
   t_lat
   t_lon
-]
-
-corals-own [
-  t_lat
-  t_lon
-  prob
+  p
+  useful-life
 ]
 
 patches-own [
@@ -55,7 +48,7 @@ end
 
 to display-map                                                                       ; Displays map on screen
 
-  gis:apply-coverage countries-dataset "SQKM" area                                   ; GIS shape file has SQKM feild which has area of the country
+  gis:apply-coverage countries-dataset "SQKM" area                                   ; GIS shape file has SQKM field which has area of the country
   ask patches
   [
     ifelse (area > 0 )                                                               ; Assigning white color to land and blue to ocean
@@ -75,27 +68,60 @@ to plastic-movement                                                 ; Plastic mo
 
   ask turtles
   [
-    if pcolor = blue
-    [
-      set heading direction                                         ; Set heading of turtle with the currents direction.
+      ifelse p = 2                                                  ; not biodegradable plastic movement
+            [ let i 0
+              while [ i <= 15]
+                    [ set i (i + 1)
+                      if pcolor = blue
+                         [ set heading direction
+                           if patch-ahead 2 != nobody
+                              [ let c [pcolor] of patch-ahead 2
+                                let lat2 [p_lat] of patch-ahead 2
+                                let lon2 [p_long] of patch-ahead 2
 
-      if patch-ahead 2 != nobody
-      [
+                                ifelse scale-mag?                                           ; If scale-mag is true, then the magnitude of currents data is used. Else turtle is moved 1 unit.
+                                       [
+                                         cal-distance t_lon t_lat
+                                       ]
+                                       [
+                                         fd 1
+                                       ]
+                             ]
+                         ]
 
-        let c [pcolor] of patch-ahead 2
-        let lat2 [p_lat] of patch-ahead 2
-        let lon2 [p_long] of patch-ahead 2
+                     ]
+            ]
 
-        ifelse scale-mag?                                           ; If scale-mag is true, then the magnitude of currents data is used. Else turtle is moved 1 unit.
-        [
-          cal-distance t_lon t_lat
-        ]
-        [
-          fd 1
-        ]
-      ]
-    ]
+            [  let i  0
+               while [ i <= 15]
+                     [ set i (i + 1)
+                       ifelse useful-life > 0
+                              [ set useful-life (useful-life - 1)
+                                if pcolor = blue
+                                    [ set heading direction
+                                      if patch-ahead 2 != nobody
+                                         [  let c [pcolor] of patch-ahead 2
+                                            let lat2 [p_lat] of patch-ahead 2
+                                            let lon2 [p_long] of patch-ahead 2
+
+                                            ifelse scale-mag?                                           ; If scale-mag is true, then the magnitude of currents data is used. Else turtle is moved 1 unit.
+                                                   [
+                                                     cal-distance t_lon t_lat
+
+                                                   ]
+                                                   [
+                                                     fd 1
+                                                   ]
+                                        ]
+                                   ]
+                              ]
+                              [
+                                die
+                              ]
+                    ]
+          ]
   ]
+
   tick
 
 end
@@ -144,11 +170,11 @@ to add-plastic-from-mouse                                                       
   [
     if not mouse-clicked? [
       set mouse-clicked? true
-      crt plastic-quantity / 5 [ setxy mouse-xcor mouse-ycor set size 2 ]
-      crt plastic-quantity / 5 [ setxy mouse-xcor + 0.5 mouse-ycor + 0.5 set size 2 ]
-      crt plastic-quantity / 5 [ setxy mouse-xcor - 0.5 mouse-ycor + 0.5 set size 2 ]
-      crt plastic-quantity / 5 [ setxy mouse-xcor + 0.5 mouse-ycor - 0.5 set size 2]
-      crt plastic-quantity / 5 [ setxy mouse-xcor - 0.5 mouse-ycor - 0.5 set size 2]
+      crt plastic-quantity / 5 [ setxy mouse-xcor mouse-ycor set size 2 set p 0]
+      crt plastic-quantity / 5 [ setxy mouse-xcor + 0.5 mouse-ycor + 0.5 set size 2 set p 0 ]
+      crt plastic-quantity / 5 [ setxy mouse-xcor - 0.5 mouse-ycor + 0.5 set size 2 set p 0 ]
+      crt plastic-quantity / 5 [ setxy mouse-xcor + 0.5 mouse-ycor - 0.5 set size 2 set p 0 ]
+      crt plastic-quantity / 5 [ setxy mouse-xcor - 0.5 mouse-ycor - 0.5 set size 2 set p 0 ]
 
     ]
   ]
@@ -156,6 +182,8 @@ to add-plastic-from-mouse                                                       
     set mouse-clicked? false
   ]
   assign-lat-lon-to-turtle
+  assign-useful-life
+  assign-biodegradability-to-turtle
 
 end
 
@@ -165,11 +193,14 @@ to add-plastic-rand                                ; Function to create plastic 
 
   create-turtles 10000
   [
-  setxy random-xcor random-ycor
+ setxy random-xcor random-ycor
  set size 2
+ set p 0
   if area > 0 [die]
   ]
 assign-lat-lon-to-turtle
+assign-useful-life
+assign-biodegradability-to-turtle
 
 end
 
@@ -305,42 +336,6 @@ to clean-plastic                   ; clears all the plastic.
   ask turtles [ die ]
 end
 
-to add-coral-from-data
-  reset-timer
-  set corals-dataset gis:load-dataset "../data/WCMC008_CoralReef2018_Py_v4_10percent/WCMC008_CoralReef2018_Py_v4_10percent.shp"
-  ;set corals-dataset gis:load-dataset  "../data/WCMC008_CoralReefs2018/01_Data/WCMC008_CoralReef2018_Py_v4_1.shp"
-  print gis:property-names corals-dataset
-  print  gis:shape-type-of corals-dataset
-  gis:apply-coverage corals-dataset "GIS_AREA_K" area                                   ; GIS shape file has SQKM feild which has area of the country
-
-
-  ;let microplastic-long-coord gis:property-value vector-feature "Longitude"
-  ;let microplastic-lat-coord gis:property-value vector-feature "Latitude"
-  ;let countofmicroplastic gis:property-value vector-feature "Total_Piec"
-
-  ask patches
-  [
-    if (area > 0 )                                                               ; Assigning white color to land and blue to ocean
-    [ set pcolor red]
-  ]
-
-  ;foreach gis:feature-list-of corals-dataset [ this-vector-feature ->
-  ;  let curr-area gis:property-value this-vector-feature "GIS_AREA_K"
-  ;  if (curr-area > 0)
-  ;  [
-  ;    gis:create-turtles-inside-polygon this-vector-feature corals 10
-  ;    [
-  ;      set size 3
-  ;      set t_lat p_lat
-  ;      set t_lon p_long
-  ;      set prob random-float 1
-  ;    ]
-  ;  ]
-  ;]
-
-  type "Elapsed seconds loading corals dataset: " type timer type "\n"
-
-end
 
 to add-plastic-from-data                                                ; Creates plastic for the area selected
   if plastic-data  = "atlantic"
@@ -408,106 +403,23 @@ to fetch-plastic-data-australia [plastic-long-coord plastic-lat-coord vector-fea
 end
 
 
-to add-microplastic-from-data                                                ; Creates microplastic for the area selected
-  if microplastic-data  = "AdventureScientits"
-  [
-    add-microplastic-from-data-adventure-scientits
-  ]
-  if microplastic-data = "SEA"
-  [
-     ; add-microplastic-from-data-SEA
-    show "This dataset is too big and could break the program. Uncomment it."
-  ]
-  if microplastic-data = "GEOMAR"
-  [
-    add-microplastic-from-data-GEOMAR
-  ]
-end
-
-
-to add-microplastic-from-data-adventure-scientits                            ; Reads shape file and creates turtles at lat long fetched from shape data
-
-  set microplastic-as-data gis:load-dataset "../data/AdventureScientist_microplastic/AdventureScientist_microplastic.shp"
-  foreach gis:feature-list-of microplastic-as-data
-  [
-    vector-feature ->
-    let microplastic-long-coord gis:property-value vector-feature "Longitude"
-    let microplastic-lat-coord gis:property-value vector-feature "Latitude"
-    let countofmicroplastic gis:property-value vector-feature "Total_Piec"
-    let scale 1     ; 1 because is microplastic
-    if check-if-inside-world-limits microplastic-long-coord microplastic-lat-coord
-    [ create-turtles-from-data microplastic-long-coord microplastic-lat-coord countofmicroplastic "none" scale ]
-  ]
-
-end
-
-
-to add-microplastic-from-data-SEA
-
-  set microplastic-as-data gis:load-dataset "../data/SEA_microplastic/SEA_microplastic.shp"
-  foreach gis:feature-list-of microplastic-as-data
-  [
-    vector-feature ->
-    let microplastic-long-coord gis:property-value vector-feature "Long_deg_"
-    let microplastic-lat-coord gis:property-value vector-feature "Lat_deg_"
-    let countofmicroplastic gis:property-value vector-feature "Pieces_KM2"
-    let scale 1     ; 1 because is microplastic
-    if check-if-inside-world-limits microplastic-long-coord microplastic-lat-coord
-    [ create-turtles-from-data microplastic-long-coord microplastic-lat-coord countofmicroplastic "none" scale ]
-  ]
-
-end
-
-
-to add-microplastic-from-data-GEOMAR
-
-  set microplastic-as-data gis:load-dataset "../data/GEOMAR_microplastic/GEOMAR_microplastic.shp"
-  foreach gis:feature-list-of microplastic-as-data
-  [
-    vector-feature ->
-    let microplastic-long-coord gis:property-value vector-feature "Longitude"
-    let microplastic-lat-coord gis:property-value vector-feature "Latitude"
-    let countofmicroplastic gis:property-value vector-feature "MP_conc__p"
-    let scale 1     ; 1 because is microplastic
-    if check-if-inside-world-limits microplastic-long-coord microplastic-lat-coord
-    [ create-turtles-from-data microplastic-long-coord microplastic-lat-coord countofmicroplastic "none" scale ]
-  ]
-
-end
-
-
-to-report check-if-inside-world-limits [long-coord lat-coord]
-  ifelse (long-coord > -180) and (long-coord < 180) and
-         (lat-coord > -60) and (lat-coord < 72)
-    [ report true ]
-    [ report false ]
-end
-
 
 to create-turtles-from-data [plastic-long-coord plastic-lat-coord plastic-count plastic-color scale]      ; Function to create turtles from the shape file data
 
-  let plastic-count-num 0
-  ifelse is-string? plastic-count
+  if (plastic-count != nobody) and (plastic-count != "") and (read-from-string plastic-count != 0)
   [
-    if (plastic-count != nobody) and (plastic-count != "") [
-      set plastic-count-num read-from-string plastic-count
-    ]
-  ]
-  [
-    set plastic-count-num  plastic-count
-  ]
-
-  if (plastic-count-num != 0)
-  [
-    create-turtles int (plastic-count-num / scale)
+    create-turtles int (read-from-string plastic-count / scale)
     [
     set size 2
     set xcor plastic-long-coord
     set ycor plastic-lat-coord
+    set p 0
     if plastic-color != "none" [set color plastic-color]
     ]
   ]
 assign-lat-lon-to-turtle
+assign-useful-life
+assign-biodegradability-to-turtle
 
 end
 
@@ -531,12 +443,44 @@ to read-chunk [chunk-path]                                                      
 
 end
 
+
 to assign-lat-lon-to-turtle                             ; Assigns turtles with the lat, lon with patch data turtle is on when created
   ask turtles [
     set t_lat p_lat
     set t_lon p_long
   ]
 end
+
+
+
+to   assign-biodegradability-to-turtle   ; Assigns turtles p=1 or p=2 depending on whether the turtle is a biodegradable plastic or not and on the amount of biodegrable plastic
+  if percentage-bio-plastic = ""
+ [
+    show "WARNING, No quantity of biodegradable plastics are considered" stop
+ ]
+
+  let h ((count turtles * read-from-string percentage-bio-plastic) - (count turtles with [p = 1]))
+  ask n-of h turtles with [p = 0] [set p 1]
+  ask turtles with [p = 0] [set p 2 set useful-life 36500]
+
+end
+
+to assign-useful-life    ; Assigns turtles a range of useful lifetime
+  (ifelse
+    useful-life-bioplastic = "3-5 years"
+          [ask turtles with [p = 0] [set useful-life 1825]]
+    useful-life-bioplastic = "3-7 years"
+          [ask turtles with [p = 0] [set useful-life 2555]]
+    [ask turtles with [p = 0] [set useful-life 3650]]
+   )
+end
+
+
+
+
+
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 406
@@ -600,10 +544,10 @@ NIL
 0
 
 BUTTON
-28
-384
-205
-417
+29
+271
+206
+304
 NIL
 add-plastic-rand
 NIL
@@ -617,10 +561,10 @@ NIL
 1
 
 BUTTON
-27
-428
-394
-461
+28
+315
+395
+348
 NIL
 plastic-movement
 T
@@ -634,10 +578,10 @@ NIL
 1
 
 BUTTON
-30
-341
-207
-374
+31
+228
+208
+261
 NIL
 add-plastic-from-mouse
 T
@@ -651,10 +595,10 @@ NIL
 1
 
 MONITOR
-141
-473
-248
-518
+28
+362
+135
+407
 plastic
 count turtles
 17
@@ -662,10 +606,10 @@ count turtles
 11
 
 SLIDER
-215
-341
-397
-374
+216
+228
+398
+261
 plastic-quantity
 plastic-quantity
 0
@@ -728,10 +672,10 @@ NIL
 1
 
 BUTTON
-213
-385
-395
-418
+214
+272
+396
+305
 clean plastic
 clean-plastic
 NIL
@@ -789,59 +733,36 @@ plastic-data
 0
 
 SWITCH
-266
-479
-393
-512
+204
+363
+331
+396
 scale-mag?
 scale-mag?
 0
 1
 -1000
 
-BUTTON
-212
-235
-399
-268
-NIL
-add-microplastic-from-data
-NIL
+INPUTBOX
+29
+427
+177
+488
+percentage-bio-plastic
+0.8
 1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
+0
+String
 
 CHOOSER
-23
-231
-208
-276
-microplastic-data
-microplastic-data
-"AdventureScientits" "SEA" "GEOMAR"
-2
-
-BUTTON
-31
-300
-206
-333
-NIL
-add-coral-from-data
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
+198
+429
+354
+474
+useful-life-bioplastic
+useful-life-bioplastic
+"3-5 years" "3-7 years" "3-10 years"
+0
 
 @#$#@#$#@
 ![Plastic Movement](file:../data/info/h.jpg)
