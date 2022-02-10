@@ -5,179 +5,151 @@ extensions [
 breed [corals coral]
 
 globals [
-  countries-dataset
-  corals-dataset
-  plastic-shore-data
-  microplastic-as-data
-  currents-data
-  mouse-clicked?
-  patches-with-no-data
+  countries-dataset     ; global world from GIS world map
+  corals-dataset        ; coral datos
+  plastic-shore-data    ; turtles plastic from GIS data
+  microplastic-as-data  ; microplasticvos datos
+  currents-data         ; no se
+  mouse-clicked?        ; para agregar plastico con el mouse
+  patches-with-no-data  ; no se
 ]
 
-turtles-own [
-  t_lat
-  t_lon
+turtles-own [           ; agente plastico
+  t_lat                 ; latitud
+  t_lon                 ; longitud
+  useful-life           ; estatus de vida
 ]
 
-corals-own [
-  t_lat
-  t_lon
-  prob
+corals-own [            ; agente coral
+  t_lat                 ; latitud
+  t_lon                 ; longitud
+  prob                  ; probabilidad de enfermar
 ]
 
-patches-own [
-  area
-  speed-east
-  speed-north
-  magnitude
-  direction
-  p_lat
-  p_long
+patches-own [           ; agente mundo
+  area                  ; area de patch
+  speed-east            ; velocidad corriente oceanica desde este
+  speed-north           ; velocidad corriente oceanica desde norte
+  magnitude             ; distancia recorrida por plastico en un dia
+  direction             ; direccion de movimiento de plastico (angulo de la tortuga)
+  p_lat                 ; posicion lat
+  p_long                ; posicion long
 ]
 
 
 to setup
   clear-all
-  gis:load-coordinate-system "../data/countries/cntry.prj"
-  set countries-dataset gis:load-dataset "../data/countries/cntry.shp"        ; GIS world map Input data shape file path
-  gis:set-world-envelope-ds [-180 180 -60 72]
-  reset-ticks
+  gis:load-coordinate-system "../data/countries/cntry.prj"                    ; carga datos de GIS world map
+  set countries-dataset gis:load-dataset "../data/countries/cntry.shp"        ; carga el data set
+  gis:set-world-envelope-ds [-180 180 -60 72]                                 ; defino mundo
+  reset-ticks         ; limpio ticks
 end
 
 
-
-to load-data                                                                  ;Loading world oceans currents data
-  set currents-data gis:load-dataset "../data/dataFolder/latest_file.shp"
-  add-currents-data
+to load-data                                                                  ; carga datos oceanicos
+  set currents-data gis:load-dataset "../data/dataFolder/latest_file.shp"     ; carga dataset
+  add-currents-data   ; agrega corrientes en formato vectorial desde archivos
 end
 
 
-
-to display-map                                                                       ; Displays map on screen
-
-  gis:apply-coverage countries-dataset "SQKM" area                                   ; GIS shape file has SQKM feild which has area of the country
+to display-map                                                                ; Muestra mapa
+  gis:apply-coverage countries-dataset "SQKM" area                            ; El campo SQKM tiene el area del pais
   ask patches
   [
-    ifelse (area > 0 )                                                               ; Assigning white color to land and blue to ocean
-    [
-      set pcolor white
-    ]
-    [
-      set pcolor blue
-    ]
+    ifelse (area > 0 )                                                        ; Asigno azul al oceano y blanco a la tierra
+    [ set pcolor brown ]
+    [ set pcolor blue ]
   ]
-
 end
 
 
-
-to plastic-movement                                                 ; Plastic movement function.
-
+to plastic-movement                                                 ; Funcion que mueve plasticos
   ask turtles
   [
-    if pcolor = blue
+    if pcolor = blue                                                ;  si es azul
     [
-      set heading direction                                         ; Set heading of turtle with the currents direction.
+      set heading direction                                         ; establece direccion con las corrientes
 
-      if patch-ahead 2 != nobody
+      if patch-ahead 2 != nobody                                    ; si no esta muerta
       [
-
-        let c [pcolor] of patch-ahead 2
-        let lat2 [p_lat] of patch-ahead 2
-        let lon2 [p_long] of patch-ahead 2
-
-        ifelse scale-mag?                                           ; If scale-mag is true, then the magnitude of currents data is used. Else turtle is moved 1 unit.
-        [
-          cal-distance t_lon t_lat
-        ]
-        [
-          fd 1
-        ]
+        let c [pcolor] of patch-ahead 2                             ; variable local c segun ahead
+        let lat2 [p_lat] of patch-ahead 2                           ; variable local lat2 segun ahead
+        let lon2 [p_long] of patch-ahead 2                          ; variable local lon2 segun ahead
+        ifelse scale-mag?                                           ; Si scale-mag es true uso magnitud de corriente sino muevo 1 unidad
+        [cal-distance t_lon t_lat ]
+        [ fd 1 ]
       ]
     ]
   ]
-  tick
-
+  tick                                                              ; paso
 end
 
 
-
-to cal-distance [lon1 lat1]                                        ; displace the turtle location and update turtle lat, lon attributes.
-
-  let R 6378.1
-  let b direction
-  let d magnitude
+to cal-distance [lon1 lat1]                                         ; funcion para actualizar datos de lat y long
+  let R 6378.1                                                      ; Radio Tierra
+  let b direction                                                   ; direccion
+  let d magnitude                                                   ; magnitud
   let lat2 asin (
-                        ( sin lat1 * cos ( (d / R) * 57.2958 )  ) +
-                        ( cos lat1 * sin ( (d / R) * 57.2958 ) * cos b )
-
+                    ( sin lat1 * cos ( (d / R) * 57.2958 )  ) +
+                    ( cos lat1 * sin ( (d / R) * 57.2958 ) * cos b )
                 )
   let lol atan  ( sin(b) * sin ( (d / R) * 57.2958 ) * cos(lat1)  )   (  cos ( (d / R) * 57.2958 ) - ( sin(lat1) * sin(lat2) ) )
   let lon2 0
-  ifelse  lol > 180 and lol <= 360 [
-                                       set lon2 lon1 + lol - 360
-                                   ][
-                                       set lon2 lon1 +  lol
-                                   ]
-  ; Calculated lat2, lon2 using haversine formula
-  let target-location gis:project-lat-lon lat2 lon2                ; Projecting lat, lon to Netlogo world coordinates
-  if not empty? target-location [
-       let target-location-xcor item 0 target-location
-       let target-location-ycor item 1 target-location
-       setxy target-location-xcor target-location-ycor             ; Updating turtle location
-       set t_lat lat2
-       set t_lon lon2
+  ifelse  lol > 180 and lol <= 360
+  [
+    set lon2 lon1 + lol - 360
+  ][
+    set lon2 lon1 +  lol
+  ]                                                                 ; Calculado lat2, lon2 usando la fórmula haversine
+  let target-location gis:project-lat-lon lat2 lon2                 ; Proyectar lat, lon a las coordenadas mundiales de Netlogo
+  if not empty? target-location
+  [
+    let target-location-xcor item 0 target-location
+    let target-location-ycor item 1 target-location
+    setxy target-location-xcor target-location-ycor              ; Actualizando la ubicación de la tortuga
+    set t_lat lat2
+    set t_lon lon2
   ]
-
 end
 
 
-
-to add-plastic-from-mouse                                                         ; Creates plastic at the mouse click point
-
-  if plastic-quantity = 0
+to add-plastic-from-mouse                                           ; funcion para crear plastico en el lugar del mouse
+  if plastic-quantity = 0                                           ; la cantidad de plasticos debe ser mas que cero para insertarlos con el mouse
   [
-    show "WARNING, No quantity of plastics are considered" stop
+    show "ATENCION, No se considera cantidad de plásticos" stop     ; error detiene funcion
   ]
-
-  ifelse mouse-down?
+  ifelse mouse-down?                                                ; si presiono click
   [
-    if not mouse-clicked? [
-      set mouse-clicked? true
+    if not mouse-clicked?                                           ; si clickie
+    [
+      set mouse-clicked? true                                       ; bandera
       crt plastic-quantity / 5 [ setxy mouse-xcor mouse-ycor set size 2 ]
       crt plastic-quantity / 5 [ setxy mouse-xcor + 0.5 mouse-ycor + 0.5 set size 2 ]
       crt plastic-quantity / 5 [ setxy mouse-xcor - 0.5 mouse-ycor + 0.5 set size 2 ]
       crt plastic-quantity / 5 [ setxy mouse-xcor + 0.5 mouse-ycor - 0.5 set size 2]
       crt plastic-quantity / 5 [ setxy mouse-xcor - 0.5 mouse-ycor - 0.5 set size 2]
-
-    ]
+    ]                                                               ; transformacion para insertar una tortuga
   ]
   [
-    set mouse-clicked? false
+    set mouse-clicked? false                                        ; al salir para evitar la creacion continua desactivo la bandera
   ]
-  assign-lat-lon-to-turtle
-
+  assign-lat-lon-to-turtle                                          ; funcion para asignar datos del patch a la tortuga
 end
 
 
-
-to add-plastic-rand                                ; Function to create plastic randomly
-
-  create-turtles 10000
+to add-plastic-rand                                                 ; funcion para crear plastico random
+  create-turtles 10000                                              ; 10000
   [
-  setxy random-xcor random-ycor
- set size 2
-  if area > 0 [die]
+    setxy random-xcor random-ycor
+    set size 2                        ; tamanio 2
+    if area > 0                                                     ; evitar areas negativas
+      [die]
   ]
-assign-lat-lon-to-turtle
-
+  assign-lat-lon-to-turtle                                          ; funcion para asignar datos del patch a la tortuga
 end
 
 
-
-
-to add-currents-data                               ; Reads ocean surface currents data shape file and extracts feature vectors
-
+to add-currents-data                               ; Lee los datos de la superficie oceanica y extrae los vectores de caracteristicas
   foreach gis:feature-list-of currents-data
   [
     vector-feature ->
@@ -193,58 +165,51 @@ to add-currents-data                               ; Reads ocean surface current
 end
 
 
-to fetch-currents-data [vector-feature long-coord lat-coord]                             ; extracts data fields from the shape file feature vector
-
+to fetch-currents-data [vector-feature long-coord lat-coord]                             ; para extraer datos del vector de caracteristicas desde el archivo
   let lat gis:property-value vector-feature "FIELD_1"
   let long gis:property-value vector-feature "FIELD_2"
   let VNCMS gis:property-value vector-feature "FIELD_5"
   let VECMS gis:property-value vector-feature "FIELD_4"
   assign-currents-data-to-patch lat long VNCMS VECMS long-coord lat-coord
-
 end
 
 
-to assign-currents-data-to-patch [lat long VNCMS VECMS long-coord lat-coord]       ; Assings the data read from shape file to patch
-
+to assign-currents-data-to-patch [lat long VNCMS VECMS long-coord lat-coord]       ; Asigna los datos leidos de l archivo a los patch
   if VNCMS != 0 and VECMS != 0[
-    if (patch long-coord lat-coord != nobody) [
-    ask patch long-coord lat-coord
+    if (patch long-coord lat-coord != nobody)
     [
-      set speed-north ( VNCMS * 86400 / 100000)                                    ; Speed is converted to km/day
-      set speed-east ( VECMS * 86400 / 100000)
-      set p_lat lat
-      set p_long long
-      assign-currents
-    ]
+      ask patch long-coord lat-coord
+      [
+        set speed-north ( VNCMS * 86400 / 100000)                                    ; La velocidad se convierte a km/día
+        set speed-east ( VECMS * 86400 / 100000)
+        set p_lat lat
+        set p_long long
+        assign-currents
+      ]
     ]
   ]
 
 end
 
 
-
-to assign-currents                                                         ; Cal resultant speed and direction from north direction velocity and east direction velocity
-
-  set magnitude sqrt ( speed-north * speed-north + speed-east * speed-east )                                ; Assigning value to patches
+to assign-currents                                                                    ; funcion para calcular velocidad y direccion resultante en este y norte
+  set magnitude sqrt ( speed-north * speed-north + speed-east * speed-east )          ; Asigno a los patch valores
   set direction atan speed-east speed-north
-
 end
 
 
-
-to interpolate-data                                         ; Function to assign data to all the patches without data
+to interpolate-data                                         ; Asigna datos a todos loas patches sin datos
   set patches-with-no-data no-data
   set-value-to-neighbour-patches
   let after-interpolation-data no-data
-  if not (patches-with-no-data = after-interpolation-data)
+  if not (patches-with-no-data = after-interpolation-data)  ; recursivamente verifica y si no tiene datos los agrega
   [
     interpolate-data
   ]
 end
 
 
-to set-value-to-neighbour-patches                             ; Assign average value to the patch from neighbor patches
-
+to set-value-to-neighbour-patches                             ; Para asignar tomo valor medio de patch vecinos
   ask patches
   [
     if not (magnitude = 0) and not (area > 0)
@@ -266,15 +231,12 @@ to set-value-to-neighbour-patches                             ; Assign average v
 end
 
 
-to-report no-data                  ; Counts the patches with data
-
+to-report no-data                  ; Cuenta los parches con datos
   report count patches with [ magnitude = 0 ]
-
 end
 
 
-to show-data                        ; Displays patches with data on screen in green color
-
+to show-data                        ; Muestra parches con datos en pantalla en color verde
   ask patches
   [
     if magnitude = 0 and direction = 0 and not (area > 0)
@@ -342,7 +304,7 @@ to add-coral-from-data
 
 end
 
-to add-plastic-from-data                                                ; Creates plastic for the area selected
+to add-plastic-from-data                                                ; Crea plástico para el data set seleccionado
   if plastic-data  = "atlantic"
   [
     add-plastic-from-data-atlantic
@@ -531,8 +493,10 @@ to read-chunk [chunk-path]                                                      
 
 end
 
-to assign-lat-lon-to-turtle                             ; Assigns turtles with the lat, lon with patch data turtle is on when created
-  ask turtles [
+
+to assign-lat-lon-to-turtle                             ; Asigna tortuga con lat y long del patch data (comunicacion patch tortuga)
+  ask turtles
+  [
     set t_lat p_lat
     set t_lon p_long
   ]
