@@ -64,68 +64,119 @@ end
 
 
 
+;to plastic-movement                                                 ; Plastic movement function.
+;
+;  ask turtles
+;  [
+;      ifelse p = 2                                                  ; not biodegradable plastic movement
+;            [ let i 0
+;              while [ i <= 15]
+;                    [ set i (i + 1)
+;                      if pcolor = blue
+;                         [ set heading direction
+;                           if patch-ahead 2 != nobody
+;                              [ let c [pcolor] of patch-ahead 2
+;                                let lat2 [p_lat] of patch-ahead 2
+;                                let lon2 [p_long] of patch-ahead 2
+;
+;                                ifelse scale-mag?                                           ; If scale-mag is true, then the magnitude of currents data is used. Else turtle is moved 1 unit.
+;                                       [
+;                                         cal-distance t_lon t_lat
+;                                       ]
+;                                       [
+;                                         fd 1
+;                                       ]
+;                             ]
+;                         ]
+;
+;                     ]
+;            ]
+;
+;            [  let i  0
+;               while [ i <= 15]
+;                     [ set i (i + 1)
+;                       ifelse useful-life > 0
+;                              [ set useful-life (useful-life - 1)
+;                                if pcolor = blue
+;                                    [ set heading direction
+;                                      if patch-ahead 2 != nobody
+;                                         [  let c [pcolor] of patch-ahead 2
+;                                            let lat2 [p_lat] of patch-ahead 2
+;                                            let lon2 [p_long] of patch-ahead 2
+;
+;                                            ifelse scale-mag?                                           ; If scale-mag is true, then the magnitude of currents data is used. Else turtle is moved 1 unit.
+;                                                   [
+;                                                     cal-distance t_lon t_lat
+;
+;                                                   ]
+;                                                   [
+;                                                     fd 1
+;                                                   ]
+;                                        ]
+;                                   ]
+;                              ]
+;                              [
+;                                die
+;                              ]
+;                    ]
+;          ]
+;  ]
+;
+;  tick
+;
+;end
+
 to plastic-movement                                                 ; Plastic movement function.
 
   ask turtles
-  [
-      ifelse p = 2                                                  ; not biodegradable plastic movement
-            [ let i 0
-              while [ i <= 15]
-                    [ set i (i + 1)
-                      if pcolor = blue
-                         [ set heading direction
-                           if patch-ahead 2 != nobody
-                              [ let c [pcolor] of patch-ahead 2
-                                let lat2 [p_lat] of patch-ahead 2
-                                let lon2 [p_long] of patch-ahead 2
+  [ ifelse p = 2                                                  ; not biodegradable plastic movement
+          [if pcolor = blue
+              [ set heading direction
+                if patch-ahead 2 != nobody
+                   [ let c [pcolor] of patch-ahead 2
+                     let lat2 [p_lat] of patch-ahead 2
+                     let lon2 [p_long] of patch-ahead 2
 
-                                ifelse scale-mag?                                           ; If scale-mag is true, then the magnitude of currents data is used. Else turtle is moved 1 unit.
-                                       [
-                                         cal-distance t_lon t_lat
-                                       ]
-                                       [
-                                         fd 1
-                                       ]
-                             ]
-                         ]
-
-                     ]
-            ]
-
-            [  let i  0
-               while [ i <= 15]
-                     [ set i (i + 1)
-                       ifelse useful-life > 0
-                              [ set useful-life (useful-life - 1)
-                                if pcolor = blue
-                                    [ set heading direction
-                                      if patch-ahead 2 != nobody
-                                         [  let c [pcolor] of patch-ahead 2
-                                            let lat2 [p_lat] of patch-ahead 2
-                                            let lon2 [p_long] of patch-ahead 2
-
-                                            ifelse scale-mag?                                           ; If scale-mag is true, then the magnitude of currents data is used. Else turtle is moved 1 unit.
-                                                   [
-                                                     cal-distance t_lon t_lat
-
-                                                   ]
-                                                   [
-                                                     fd 1
-                                                   ]
-                                        ]
-                                   ]
-                              ]
-                              [
-                                die
-                              ]
+                     ifelse scale-mag?                                           ; If scale-mag is true, then the magnitude of currents data is used. Else turtle is moved 1 unit.
+                            [
+                              cal-distance t_lon t_lat
+                            ]
+                            [
+                              fd 1
+                            ]
                     ]
-          ]
-  ]
+               ]
 
+           ]
+
+           [ ifelse useful-life > 1095
+                    [ set useful-life (useful-life - 1)
+                          if pcolor = blue
+                             [ set heading direction
+                               if patch-ahead 2 != nobody
+                                  [  let c [pcolor] of patch-ahead 2
+                                     let lat2 [p_lat] of patch-ahead 2
+                                     let lon2 [p_long] of patch-ahead 2
+
+                                     ifelse scale-mag?                                           ; If scale-mag is true, then the magnitude of currents data is used. Else turtle is moved 1 unit.
+                                            [
+                                              cal-distance t_lon t_lat
+
+                                            ]
+                                            [
+                                                     fd 1
+                                            ]
+                                  ]
+                            ]
+                     ]
+                     [
+                      die
+                     ]
+           ]
+ ]
   tick
 
 end
-
 
 
 to cal-distance [lon1 lat1]                                        ; displace the turtle location and update turtle lat, lon attributes.
@@ -468,13 +519,12 @@ end
 to assign-useful-life    ; Assigns turtles a range of useful lifetime
   (ifelse
     useful-life-bioplastic = "3-5 years"
-          [ask turtles with [p = 0] [set useful-life 1825]]
+          [ask turtles with [p = 0] [set useful-life (1095 + random 730)]]
     useful-life-bioplastic = "3-7 years"
-          [ask turtles with [p = 0] [set useful-life 2555]]
-    [ask turtles with [p = 0] [set useful-life 3650]]
+          [ask turtles with [p = 0] [set useful-life (1095 + random 1460)]]
+    [ask turtles with [p = 0] [set useful-life (1095 + random 2555)]]
    )
 end
-
 
 
 
