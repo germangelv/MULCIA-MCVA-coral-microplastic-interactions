@@ -4,60 +4,55 @@ extensions [
 
 
 globals [
-  countries-dataset
-  plastic-shore-data
-  currents-data
-  mouse-clicked?
+  countries-dataset   ; global world from GIS world map
+  plastic-shore-data  ; turtles plastic from GIS data
+  currents-data       ; no se
+  mouse-clicked?      ; para agregar plastico con el mouse
   patches-with-no-data
 ]
 
-turtles-own [
-  t_lat
-  t_lon
-  p
-  useful-life
+turtles-own [         ; agente plastico
+  t_lat               ; latitud
+  t_lon               ; longitud
+  p                   ; diferencia entre plastico biodegradable y no biodegradable
+  useful-life         ; estatus de vida
 ]
 
-patches-own [
-  area
-  speed-east
-  speed-north
-  magnitude
-  direction
-  p_lat
-  p_long
+patches-own [         ; agente mundo
+  area                ; area de patch
+  speed-east          ; velocidad corriente oceanica desde este
+  speed-north         ; velocidad corriente oceanica desde norte
+  magnitude           ; distancia recorrida por plastico en un dia
+  direction           ; direccion de movimiento de plastico (angulo de la tortuga)
+  p_lat               ; posicion lat
+  p_long              ; posicion long
 ]
 
 
 to setup
-  clear-all
-  gis:load-coordinate-system "../data/countries/cntry.prj"
-  set countries-dataset gis:load-dataset "../data/countries/cntry.shp"        ; GIS world map Input data shape file path
-  gis:set-world-envelope-ds [-180 180 -60 72]
-  reset-ticks
+  clear-all           ; limpia todo
+  gis:load-coordinate-system "../data/countries/cntry.prj"                    ; carga datos de GIS world map
+  set countries-dataset gis:load-dataset "../data/countries/cntry.shp"        ; carga el data set
+  gis:set-world-envelope-ds [-180 180 -60 72]                                 ; defino mundo
+  reset-ticks         ; limpio ticks
 end
 
 
 
-to load-data                                                                  ;Loading world oceans currents data
-  set currents-data gis:load-dataset "../data/dataFolder/latest_file.shp"
-  add-currents-data
+to load-data                                                                  ; carga datos oceanicos
+  set currents-data gis:load-dataset "../data/dataFolder/latest_file.shp"     ; carga dataset
+  add-currents-data   ; agrega corrientes en formato vectorial desde archivos
 end
 
 
 
-to display-map                                                                       ; Displays map on screen
-
-  gis:apply-coverage countries-dataset "SQKM" area                                   ; GIS shape file has SQKM field which has area of the country
+to display-map                                                                ; Muestra mapa
+  gis:apply-coverage countries-dataset "SQKM" area                            ; El campo SQKM tiene el area del pais
   ask patches
   [
-    ifelse (area > 0 )                                                               ; Assigning white color to land and blue to ocean
-    [
-      set pcolor white
-    ]
-    [
-      set pcolor blue
-    ]
+    ifelse (area > 0 )                                                        ; Asigno azul al oceano y blanco a la tierra
+    [ set pcolor brown ]
+    [ set pcolor blue ]
   ]
 
 end
