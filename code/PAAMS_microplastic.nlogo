@@ -28,6 +28,7 @@ microplasticos-own [    ; agente microplastico
 corals-own [            ; agente coral
   t_lat                 ; latitud
   t_lon                 ; longitud
+  microplastic-near     ; cantidad de microplasticos cercanos en piezas km
   prob                  ; probabilidad de enfermar
 ]
 
@@ -413,7 +414,8 @@ end
 
 
 to coral-sick
-  if umbral > (random-prob * neighbors-microplastic * prob)
+  if 1 = 1
+  ;umbral > (random-prob * neighbors-microplastic * prob)
   [ die ]
 end
 
@@ -428,8 +430,8 @@ to-report neighbors-microplastic
 end
 
 
-to add-plastic-from-mouse                                           ; funcion para crear plastico en el lugar del mouse
-  if plastic-quantity = 0                                           ; la cantidad de microplasticos debe ser mas que cero para insertarlos con el mouse OJOCONELNOMBRE
+to add-microplastic-from-mouse                                           ; funcion para crear micro-plastico en el lugar del mouse
+  if microplastic-quantity = 0                                           ; la cantidad de microplasticos debe ser mas que cero para insertarlos con el mouse OJOCONELNOMBRE
   [
     show "ATENCION, No se considera cantidad de plásticos" stop     ; error detiene funcion
   ]
@@ -438,11 +440,11 @@ to add-plastic-from-mouse                                           ; funcion pa
     if not mouse-clicked?                                           ; si clickie
     [
       set mouse-clicked? true                                       ; bandera
-      crt plastic-quantity / 5 [ setxy mouse-xcor mouse-ycor set size 2 ]
-      crt plastic-quantity / 5 [ setxy mouse-xcor + 0.5 mouse-ycor + 0.5 set size 2 ]
-      crt plastic-quantity / 5 [ setxy mouse-xcor - 0.5 mouse-ycor + 0.5 set size 2 ]
-      crt plastic-quantity / 5 [ setxy mouse-xcor + 0.5 mouse-ycor - 0.5 set size 2]
-      crt plastic-quantity / 5 [ setxy mouse-xcor - 0.5 mouse-ycor - 0.5 set size 2]
+      create-microplasticos microplastic-quantity / 5 [ setxy mouse-xcor mouse-ycor set size 2 set color red ]
+      create-microplasticos microplastic-quantity / 5 [ setxy mouse-xcor + 0.5 mouse-ycor + 0.5 set size 2 set color red ]
+      create-microplasticos microplastic-quantity / 5 [ setxy mouse-xcor - 0.5 mouse-ycor + 0.5 set size 2 set color red ]
+      create-microplasticos microplastic-quantity / 5 [ setxy mouse-xcor + 0.5 mouse-ycor - 0.5 set size 2 set color red ]
+      create-microplasticos microplastic-quantity / 5 [ setxy mouse-xcor - 0.5 mouse-ycor - 0.5 set size 2 set color red ]
     ]                                                               ; transformacion para insertar una tortuga
   ]
   [
@@ -452,12 +454,15 @@ to add-plastic-from-mouse                                           ; funcion pa
 end
 
 
-to add-plastic-rand                                                 ; funcion para crear plastico random
+to add-microplastic-rand                                            ; funcion para crear microplastico random
   create-microplasticos 10000                                       ; 10000
   [
     setxy random-xcor random-ycor
-    set size 2                        ; tamanio 2
-    if area > 0                                                     ; evitar areas negativas
+    set size 2                                                       ; tamanio 2
+    set color yellow
+    if area > 0                                                      ; evitar areas no significativas
+      [die]
+    if pcolor != blue
       [die]
   ]
   assign-lat-lon-to-turtle                                          ; funcion para asignar datos del patch a la tortuga
@@ -473,24 +478,84 @@ to microplastic-movement                                            ; Funcion qu
   ; con esto verifico si enferma o no los corales
   ;coral-sick               ; aun no funciona
   ; no funciona tampoco la forma de preguntar corales, vecinos y luego ver los microplasticos unicamente
+
+; esto funciona !!! para matar microplasticos con corales
 ;  ask corals
 ;  [
-;    ask neighbors
+;    if any? microplasticos-on patch-here
 ;    [
-;      let contador-vecinos 0
-;      set contador-vecinos (Pieces_KM2 + contador-vecinos)
-;      if (contador-vecinos > 0)
-;      [
-;        fd 1
-;        ;code sick
-;      ]
+;      ask coralcos-here
+;
+;      [ die ]
 ;    ]
 ;  ]
+
+
+
+
+; no funciono
+;  [
+;    set microplastic-near 0
+;    create-links-with microplasticos
+;    ask link-neighbors in-radius 1
+;    [
+;      set microplastic-near sum [Pieces_KM2] of microplasticos
+;    ]
+;    if ( microplastic-near > 0)
+;    [
+;      fd 1
+;      ;code sick
+;    ]
+;  ]
+
+
+
+; no funciono
+;  [
+;    set microplastic-near 0
+;    ask neighbors
+;    [
+;      if any? Pieces_KM2
+;      [
+;        set microplastic-near sum [Pieces_KM2] of neighbors
+;      ]
+;    ]
+;    if ( microplastic-near > 0)
+;    [
+;      fd 1
+;      ;code sick
+;    ]
+;  ]
+
+
+;  [
+;    if breed = microplasticos
+;    [
+;      set microplastic-near sum [Pieces_KM2] of neighbors
+;    ]
+;    if ( microplastic-near > 0)
+;    [
+;      fd 1
+;      ;code sick
+;    ]
+;    set microplastic-near 0
+;  ]
+
   ask microplasticos
   [
-
-    if pcolor = blue                                                ;  si es azul
+    if any? corals-on patch-here                                  ; para los corales que tienen microplasticos ejecuto la probabilidad de enfermar
     [
+      ask corals-here
+      [
+        print 1
+        coral-sick
+      ]
+    ]
+
+    if pcolor = blue                                                ;  para los microplasticos en el agua ejecuto la dinamica del movimiento
+    [
+
+
       set heading direction                                         ; establece direccion con las corrientes
 
       if patch-ahead 2 != nobody                                    ; si no esta muerta
@@ -631,7 +696,7 @@ BUTTON
 205
 457
 NIL
-add-plastic-rand
+add-microplastic-rand
 NIL
 1
 T
@@ -662,10 +727,10 @@ NIL
 BUTTON
 30
 381
-207
+206
 414
 NIL
-add-plastic-from-mouse
+add-microplastic-from-mouse
 T
 1
 T
@@ -692,8 +757,8 @@ SLIDER
 381
 397
 414
-plastic-quantity
-plastic-quantity
+microplastic-quantity
+microplastic-quantity
 0
 5000
 500.0
@@ -821,7 +886,7 @@ SWITCH
 335
 scale-mag?
 scale-mag?
-0
+1
 1
 -1000
 
