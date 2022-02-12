@@ -415,30 +415,15 @@ end
 to coral-sick
   ask corals
   [
-    ;set microplastic-near sum [Pieces_KM2] of microplasticos-on neighbors            ; hay un problema con los datos, no tiene datos la bdd
-    ;set microplastic-near count microplasticos-on neighbors                          ; los conte y con los vecinos procedi
-    set microplastic-near count microplasticos-on neighbors ;cuento los microplasticos cerca y la funcion me devuelve una probabilidad de muerte por cercania
-    if umbral < (random-prob * neighbors-microplastic * prob)
+    ;neighbors-microplastic ( sum [Pieces_KM2] of microplasticos-on neighbors )                 ;hay un problema con los datos, no tiene datos la bdd
+    ;set microplastic-near count microplasticos-on neighbors                                    ;cuento los microplasticos cerca y la funcion me devuelve una probabilidad de muerte por cercania
+    set prob (random-prob * neighbors-microplastic (count microplasticos-on neighbors) * prob)  ; corregi funcion para calcular la probabilidad de enfermar de cada coral
+    if umbral < prob
     [
       set color orange
       ;die
     ]
   ]
-
-; este enfoque funciona pero me quedo con los corales en el mismo patch que los microplasticos y no puedo preguntar por los vecinos para aplicar la formula
-;  ask microplasticos
-;  [
-;    if any? corals-on patch-here                                  ; para los corales que tienen microplasticos ejecuto la probabilidad de enfermar
-;    [
-;      ask corals-here
-;      [
-;        if 1 = 1
-;        umbral > (random-prob * microplastic-near * prob)   ;
-;        [ die ]
-;      ]
-;    ]
-;  ]
-
 end
 
 
@@ -447,8 +432,8 @@ to-report random-prob
 end
 
 
-to-report neighbors-microplastic
-  report random-float 1 * microplastic-near / 100
+to-report neighbors-microplastic [var]
+  report random-float 1 * var / 300
 end
 
 
@@ -498,72 +483,10 @@ end
 
 to microplastic-movement                                            ; Funcion que mueve microplasticos Adaptacion ambiental
   coral-sick                                                        ; con esto verifico si enferma o no los corales
-
-; esto funciona !!! para matar microplasticos con corales
-;  ask corals
-;  [
-;    if any? microplasticos-on patch-here
-;    [
-;      ask coralcos-here
-;
-;      [ die ]
-;    ]
-;  ]
-
-
-; no funciono
-;  [
-;    set microplastic-near 0
-;    create-links-with microplasticos
-;    ask link-neighbors in-radius 1
-;    [
-;      set microplastic-near sum [Pieces_KM2] of microplasticos
-;    ]
-;    if ( microplastic-near > 0)
-;    [
-;      fd 1
-;      ;code sick
-;    ]
-;  ]
-
-
-; no funciono
-;  [
-;    set microplastic-near 0
-;    ask neighbors
-;    [
-;      if any? Pieces_KM2
-;      [
-;        set microplastic-near sum [Pieces_KM2] of neighbors
-;      ]
-;    ]
-;    if ( microplastic-near > 0)
-;    [
-;      fd 1
-;      ;code sick
-;    ]
-;  ]
-
-
-;  [
-;    if breed = microplasticos
-;    [
-;      set microplastic-near sum [Pieces_KM2] of neighbors
-;    ]
-;    if ( microplastic-near > 0)
-;    [
-;      fd 1
-;      ;code sick
-;    ]
-;    set microplastic-near 0
-;  ]
-
   ask microplasticos
   [
     if pcolor = blue                                                ;  para los microplasticos en el agua ejecuto la dinamica del movimiento
     [
-
-
       set heading direction                                         ; establece direccion con las corrientes
 
       if patch-ahead 2 != nobody                                    ; si no esta muerta
@@ -1003,7 +926,7 @@ INPUTBOX
 391
 293
 umbral
-1.0
+0.0
 1
 0
 Number
