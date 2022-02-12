@@ -402,13 +402,13 @@ to add-plastic-from-data-atlantic                                        ; Reads
   [
     vector-feature ->
     let plastic-coord-tuple gis:location-of (first (first (gis:vertex-lists-of vector-feature)))
-    let countofplastic gis:property-value vector-feature "PIECESKM2"
+    let countofplastic gis:property-value vector-feature "PIECESKM2"                                ; cantidad de plasticos
     if not empty? plastic-coord-tuple
     [
       let plastic-long-coord item 0 plastic-coord-tuple
       let plastic-lat-coord item 1 plastic-coord-tuple
       let scale 1000
-      create-turtles-from-data plastic-long-coord plastic-lat-coord countofplastic "none" scale
+      create-turtles-from-data plastic-long-coord plastic-lat-coord countofplastic "none" scale     ; sin color los crea y la cantidad es countofplastic
     ]
   ]
 
@@ -436,10 +436,10 @@ end
 
 to fetch-plastic-data-australia [plastic-long-coord plastic-lat-coord vector-feature]                 ; Function to read fields from shape file
 
-  let cd1 gis:property-value vector-feature "CD1"
-  let cd2 gis:property-value vector-feature "CD2"
-  let cd3 gis:property-value vector-feature "CD3"
-  let cd4 gis:property-value vector-feature "CD4"
+  let cd1 gis:property-value vector-feature "CD1"                                                     ; cantidad de plasticos que seran amarillos
+  let cd2 gis:property-value vector-feature "CD2"                                                     ; cantidad de plasticos que seran naranjas
+  let cd3 gis:property-value vector-feature "CD3"                                                     ; cantidad de plasticos que seran rojos
+  let cd4 gis:property-value vector-feature "CD4"                                                     ; cantidad de plasticos que seran verdes
   let scale 100
   create-turtles-from-data plastic-long-coord plastic-lat-coord cd1 yellow scale                       ; Creating turtles from the data read
   create-turtles-from-data plastic-long-coord plastic-lat-coord cd2 orange scale

@@ -3,22 +3,28 @@ extensions [
 ]
 
 breed [corals coral]
-breed [plasticos plastico]
+breed [microplasticos microplastico]
 
 globals [
   countries-dataset     ; global world from GIS world map
   corals-dataset        ; coral datos
   plastic-shore-data    ; turtles plastic from GIS data
-  microplastic-as-data  ; microplasticvos datos
-  currents-data         ; no se
-  mouse-clicked?        ; para agregar plastico con el mouse
-  patches-with-no-data  ; no se
+  microplastic-as-data  ; microplasticos datos
+  currents-data         ; base de datos al momento de cargar modelo GIS
+  mouse-clicked?        ; para agregar microplastico con el mouse
+  patches-with-no-data  ; patches sin data para la interpolacion
+  indice                ; indice de probabilidad de muerte de corales
+  umbral                ; umbral de cantidad de microplasticos qu epuden matar al coral
+  corals_cant           ; contador auxiliar para corales en foreach que los carga
+  microplastic_coast    ; plasticos en la costa
+  coral-affect
+
 ]
 
-plasticos-own [           ; agente plastico
+microplasticos-own [    ; agente microplastico
   t_lat                 ; latitud
   t_lon                 ; longitud
-  useful-life           ; estatus de vida
+  Pieces_KM2            ; cantidad de piezas
 ]
 
 corals-own [            ; agente coral
@@ -31,7 +37,7 @@ patches-own [           ; agente mundo
   area                  ; area de patch
   speed-east            ; velocidad corriente oceanica desde este
   speed-north           ; velocidad corriente oceanica desde norte
-  magnitude             ; distancia recorrida por plastico en un dia
+  magnitude             ; distancia recorrida por microplastico en un dia
   direction             ; direccion de movimiento de plastico (angulo de la tortuga)
   p_lat                 ; posicion lat
   p_long                ; posicion long
@@ -43,6 +49,9 @@ to setup
   gis:load-coordinate-system "../data/countries/cntry.prj"                    ; carga datos de GIS world map
   set countries-dataset gis:load-dataset "../data/countries/cntry.shp"        ; carga el data set
   gis:set-world-envelope-ds [-180 180 -60 72]                                 ; defino mundo
+  set microplastic_coast 0
+  set corals_cant 0
+  set coral-affect 0
   reset-ticks         ; limpio ticks
 end
 
@@ -241,7 +250,7 @@ to create-turtles-from-data [plastic-long-coord plastic-lat-coord plastic-count 
   [ set plastic-count-num  plastic-count ]                                   ; asumo que es entero seteo valor
   if (plastic-count-num != 0)
   [
-    create-turtles int (plastic-count-num / scale)                            ; creo tortugas segun cantidad-escala
+    create-microplasticos int (plastic-count-num / scale)                            ; creo tortugas segun cantidad-escala
     [
       set size 2
       set xcor plastic-long-coord
@@ -255,7 +264,7 @@ end
 
 
 to assign-lat-lon-to-turtle                             ; Asigna tortuga con lat y long del patch data (comunicacion patch tortuga)
-  ask plasticos                                         ;ojo que aca consulto por plasticos y en create-turtles-from-data claramente hago create-turtles
+  ask microplasticos                                     ; ojo que aca consulto por microplasticos y en create-turtles-from-data claramente hago create-turtles
   [
     set t_lat p_lat
     set t_lon p_long
@@ -275,7 +284,7 @@ to add-microplastic-from-data                                                ; C
 end
 
 ; selector de datos microplasticos
-to add-microplastic-from-data-adventure-scientits                            ; Crea tortugas con datos de micro-plasticos
+to add-microplastic-from-data-adventure-scientits                            ; Crea tortugas con datos de micro-microplasticos
 ; DEBE CREAR TORTUGA MICROPLASTICO Y NO PLASTICO CREO SINO NO SE PARA QUE ES LA ESCALA
   set microplastic-as-data gis:load-dataset "../data/AdventureScientist_microplastic/AdventureScientist_microplastic.shp"
   foreach gis:feature-list-of microplastic-as-data
@@ -286,9 +295,8 @@ to add-microplastic-from-data-adventure-scientits                            ; C
     let countofmicroplastic gis:property-value vector-feature "Total_Piec"
     let scale 1     ; 1 because is microplastic
     if check-if-inside-world-limits microplastic-long-coord microplastic-lat-coord
-    [ create-turtles-from-data microplastic-long-coord microplastic-lat-coord countofmicroplastic "none" scale ]
+    [ create-turtles-from-data microplastic-long-coord microplastic-lat-coord countofmicroplastic magenta scale ]
   ]
-
 end
 
 
@@ -301,7 +309,7 @@ to add-microplastic-from-data-SEA
     let microplastic-lat-coord gis:property-value vector-feature "Lat_deg_"
     let countofmicroplastic gis:property-value vector-feature "Pieces_KM2"
     let scale 1     ; 1 because is microplastic
-    if check-if-inside-world-limits microplastic-long-coord microplastic-lat-coord
+    if check-if-inside-world-limits microplastic-long-coord microplastic-lat-coord      ; verifica que este en el mapa
     [ create-turtles-from-data microplastic-long-coord microplastic-lat-coord countofmicroplastic "none" scale ]
   ]
 end
@@ -333,45 +341,97 @@ end
 to add-coral-from-data
   reset-timer
   set corals-dataset gis:load-dataset "../data/WCMC008_CoralReef2018_Py_v4_10percent/WCMC008_CoralReef2018_Py_v4_10percent.shp"
-  ;set corals-dataset gis:load-dataset  "../data/WCMC008_CoralReefs2018/01_Data/WCMC008_CoralReef2018_Py_v4_1.shp"
-  print gis:property-names corals-dataset
-  ;output [LAYER_NAME METADATA_I ORIG_NAME FAMILY GENUS SPECIES DATA_TYPE START_DATE END_DATE DATE_TYPE VERIF NAME LOC_DEF SURVEY_MET GIS_AREA_K SHAPE_LENG SHAPE_AREA REP_AREA_K]
-  print  gis:shape-type-of corals-dataset
-  ;output POLYGON
+  ; set corals-dataset gis:load-dataset  "../data/WCMC008_CoralReefs2018/01_Data/WCMC008_CoralReef2018_Py_v4_1.shp"
+  ; print gis:property-names corals-dataset
+  ; output [LAYER_NAME METADATA_I ORIG_NAME FAMILY GENUS SPECIES DATA_TYPE START_DATE END_DATE DATE_TYPE VERIF NAME LOC_DEF SURVEY_MET GIS_AREA_K SHAPE_LENG SHAPE_AREA REP_AREA_K]
+  ; print  gis:shape-type-of corals-dataset
+  ; output POLYGON
   gis:apply-coverage corals-dataset "GIS_AREA_K" area                                   ; GIS shape file has SQKM feild which has area of the country
 
   ;let microplastic-long-coord gis:property-value vector-feature "Longitude"
   ;let microplastic-lat-coord gis:property-value vector-feature "Latitude"
   ;let countofmicroplastic gis:property-value vector-feature "Total_Piec"
+; este codigo es para verlos como patches a los corales
+;  ask patches
+;  [
+;    if (area > 0 )                                                               ; asigna color dle oceano rojo (no se para que)
+;    [ set pcolor red ; para verlos en el mapa
+;      set corals_cant (corals_cant + 1)
+;    ]
+;  ]
+; aca termina eso de ver como patch al coral
 
-; aca deberia haber un tortuga que sea coral
-  ask patches
-  [
-    if (area > 0 )                                                               ; asigna color dle oceano rojo (no se para que)
-    [ set pcolor red]
+
+  foreach gis:feature-list-of corals-dataset [                                    ; el coral-dataset cargado anteriormente
+    this-vector-feature ->
+    let curr-area gis:property-value this-vector-feature "GIS_AREA_K"              ; en esa area crearemos corales
+    if (curr-area != nobody) and (curr-area != "") and (curr-area > 0)
+    [
+            gis:create-turtles-inside-polygon this-vector-feature corals 1
+            [
+              set size 3
+              set t_lat p_lat
+              set t_lon p_long
+              set prob random-float 1
+              set color green
+        ;     set corals_cant (corals_cant + 1)
+        ; 2.158.003 2077 ciclos son 17504
+            ]
+
+    set corals_cant (corals_cant + 1)
+    ; 17504
+    ]
   ]
-
-; no lo entiendo
-  ;foreach gis:feature-list-of corals-dataset [ this-vector-feature ->
-  ;  let curr-area gis:property-value this-vector-feature "GIS_AREA_K"
-  ;  if (curr-area > 0)
-  ;  [
-  ;    gis:create-turtles-inside-polygon this-vector-feature corals 10
-  ;    [
-  ;      set size 3
-  ;      set t_lat p_lat
-  ;      set t_lon p_long
-  ;      set prob random-float 1
-  ;    ]
-  ;  ]
-  ;]
 
   type "Elapsed seconds loading corals dataset: " type timer type "\n"
 end
 
+;["LOC_DEF":"Backreef / shallow lagoon"]
+;["ORIG_NAME":"Scott and Seringapatam Reefs"]
+;["GIS_AREA_K":"69.7911352807"]
+;["SURVEY_MET":"Not Reported"]
+;["GENUS":"Not Reported"]
+;["SPECIES":"Not Reported"]
+;["LAYER_NAME":"CRR"]
+;["END_DATE":"31/12/1998"]
+;["START_DATE":"08/10/1993"]
+;["DATE_TYPE":"DD"]
+;["SHAPE_AREA":"0.00583694823084"]
+;["REP_AREA_K":"Not Reported"]
+;["FAMILY":"Not Reported"]
+;["NAME":"Scott and Seringapatam Reefs"]
+;["SHAPE_LENG":"6.97059831373"]
+;["METADATA_I":"72.0"]
+;["VERIF":"Not Reported"]
+;["DATA_TYPE":"Remotely sensed; field survey"]
+
+to assign-lat-lon-to-corals                             ; Asigna tortuga con lat y long del patch data (comunicacion patch tortuga)
+  ask corals                                     ; ojo que aca consulto por microplasticos y en create-turtles-from-data claramente hago create-turtles
+  [
+    set t_lat p_lat
+    set t_lon p_long
+  ]
+end
+
+
+to coral-sick
+  if umbral > (random-prob * neighbors-microplastic * prob)
+  [ die ]
+end
+
+
+to-report random-prob
+  report random-float 1 * indice
+end
+
+to-report neighbors-microplastic
+  report 1
+  ; haciendo
+end
+
 
 to add-plastic-from-mouse                                           ; funcion para crear plastico en el lugar del mouse
-  if plastic-quantity = 0                                           ; la cantidad de plasticos debe ser mas que cero para insertarlos con el mouse
+  if plastic-quantity = 0                                           ; la cantidad de microplasticos debe ser mas que cero para insertarlos con el mouse OJOCONELNOMBRE
   [
     show "ATENCION, No se considera cantidad de plásticos" stop     ; error detiene funcion
   ]
@@ -395,7 +455,7 @@ end
 
 
 to add-plastic-rand                                                 ; funcion para crear plastico random
-  create-plasticos 10000                                            ; 10000
+  create-microplasticos 10000                                       ; 10000
   [
     setxy random-xcor random-ycor
     set size 2                        ; tamanio 2
@@ -406,14 +466,31 @@ to add-plastic-rand                                                 ; funcion pa
 end
 
 
-to clean-plastic                   ; clears all the plastic.
-  ask plasticos [ die ]
+to clean-microplastics                                              ; clears all the microplastic.
+  ask microplasticos [ die ]
 end
 
 
-to plastic-movement                                                 ; Funcion que mueve plasticos Adaptacion ambiental
-  ask plasticos
+to microplastic-movement                                            ; Funcion que mueve microplasticos Adaptacion ambiental
+  ; con esto verifico si enferma o no los corales
+  ;coral-sick               ; aun no funciona
+  ; no funciona tampoco la forma de preguntar corales, vecinos y luego ver los microplasticos unicamente
+;  ask corals
+;  [
+;    ask neighbors
+;    [
+;      let contador-vecinos 0
+;      set contador-vecinos (Pieces_KM2 + contador-vecinos)
+;      if (contador-vecinos > 0)
+;      [
+;        fd 1
+;        ;code sick
+;      ]
+;    ]
+;  ]
+  ask microplasticos
   [
+
     if pcolor = blue                                                ;  si es azul
     [
       set heading direction                                         ; establece direccion con las corrientes
@@ -423,11 +500,20 @@ to plastic-movement                                                 ; Funcion qu
         let c [pcolor] of patch-ahead 2                             ; variable local c segun ahead
         let lat2 [p_lat] of patch-ahead 2                           ; variable local lat2 segun ahead
         let lon2 [p_long] of patch-ahead 2                          ; variable local lon2 segun ahead
-        ifelse scale-mag?                                           ; Si scale-mag es true uso magnitud de corriente sino muevo 1 unidad
+        ifelse scale-mag?                                           ; Si scale-mag es true uso magnitud de corriente sino muevo 1 unidad de netlogo
         [cal-distance t_lon t_lat ]
         [ fd 1 ]
       ]
     ]
+    if coast-clean?
+    [
+      if pcolor = brown
+      [
+        set microplastic_coast (microplastic_coast + 1)
+        die
+      ]
+    ]
+
   ]
   tick                                                              ; paso
 end
@@ -559,12 +645,12 @@ NIL
 1
 
 BUTTON
-27
-428
-394
-461
+26
+295
+393
+328
 NIL
-plastic-movement
+microplastic-movement
 T
 1
 T
@@ -593,12 +679,12 @@ NIL
 1
 
 MONITOR
-141
-473
-248
-518
-plasticos
-count plasticos
+122
+238
+203
+283
+microplasticos
+count microplasticos
 17
 1
 11
@@ -674,8 +760,8 @@ BUTTON
 385
 395
 418
-clean plastic
-clean-plastic
+clean microplastics
+clean-microplastics
 NIL
 1
 T
@@ -687,10 +773,10 @@ NIL
 1
 
 BUTTON
-214
-179
-396
-212
+920
+468
+1102
+501
 NIL
 add-plastic-from-data
 NIL
@@ -721,20 +807,20 @@ NIL
 1
 
 CHOOSER
-29
-176
-206
-221
+725
+469
+902
+514
 plastic-data
 plastic-data
 "atlantic" "australia"
 0
 
 SWITCH
-266
-479
-393
-512
+277
+423
+392
+456
 scale-mag?
 scale-mag?
 0
@@ -742,10 +828,10 @@ scale-mag?
 -1000
 
 BUTTON
-212
-235
-399
-268
+213
+181
+391
+226
 NIL
 add-microplastic-from-data
 NIL
@@ -759,20 +845,20 @@ NIL
 1
 
 CHOOSER
-23
-231
-208
-276
+26
+181
+204
+226
 microplastic-data
 microplastic-data
 "AdventureScientits" "SEA" "GEOMAR"
-2
+0
 
 BUTTON
-31
-300
-206
-333
+212
+239
+390
+284
 NIL
 add-coral-from-data
 NIL
@@ -784,6 +870,50 @@ NIL
 NIL
 NIL
 1
+
+MONITOR
+28
+238
+110
+283
+corales
+corals_cant
+0
+1
+11
+
+MONITOR
+27
+429
+167
+474
+microplasticos en costa
+microplastic_coast
+17
+1
+11
+
+SWITCH
+277
+464
+391
+497
+coast-clean?
+coast-clean?
+1
+1
+-1000
+
+MONITOR
+28
+485
+167
+530
+NIL
+coral-affect
+17
+1
+11
 
 @#$#@#$#@
 ![Plastic Movement](file:../data/info/h.jpg)
