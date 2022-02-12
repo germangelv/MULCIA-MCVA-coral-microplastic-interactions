@@ -13,8 +13,6 @@ globals [
   currents-data         ; base de datos al momento de cargar modelo GIS
   mouse-clicked?        ; para agregar microplastico con el mouse
   patches-with-no-data  ; patches sin data para la interpolacion
-  indice                ; indice de probabilidad de muerte de corales
-  umbral                ; umbral de cantidad de microplasticos qu epuden matar al coral
   corals_cant           ; contador auxiliar para corales en foreach que los carga
   microplastic_coast    ; plasticos en la costa
   coral-affect
@@ -629,9 +627,9 @@ NIL
 
 BUTTON
 28
-384
+424
 205
-417
+457
 NIL
 add-plastic-rand
 NIL
@@ -645,10 +643,10 @@ NIL
 1
 
 BUTTON
-26
-295
-393
-328
+27
+303
+206
+373
 NIL
 microplastic-movement
 T
@@ -663,9 +661,9 @@ NIL
 
 BUTTON
 30
-341
+381
 207
-374
+414
 NIL
 add-plastic-from-mouse
 T
@@ -679,10 +677,10 @@ NIL
 1
 
 MONITOR
-122
-238
-203
-283
+796
+451
+877
+496
 microplasticos
 count microplasticos
 17
@@ -691,9 +689,9 @@ count microplasticos
 
 SLIDER
 215
-341
+381
 397
-374
+414
 plastic-quantity
 plastic-quantity
 0
@@ -757,9 +755,9 @@ NIL
 
 BUTTON
 213
-385
+425
 395
-418
+458
 clean microplastics
 clean-microplastics
 NIL
@@ -773,10 +771,10 @@ NIL
 1
 
 BUTTON
-920
-468
-1102
-501
+1311
+450
+1493
+483
 NIL
 add-plastic-from-data
 NIL
@@ -807,20 +805,20 @@ NIL
 1
 
 CHOOSER
-725
-469
-902
-514
+1116
+451
+1293
+496
 plastic-data
 plastic-data
 "atlantic" "australia"
 0
 
 SWITCH
-277
-423
-392
-456
+213
+302
+390
+335
 scale-mag?
 scale-mag?
 0
@@ -855,10 +853,10 @@ microplastic-data
 0
 
 BUTTON
-212
-239
-390
-284
+27
+235
+206
+295
 NIL
 add-coral-from-data
 NIL
@@ -872,10 +870,10 @@ NIL
 1
 
 MONITOR
-28
-238
-110
-283
+702
+451
+784
+496
 corales
 corals_cant
 0
@@ -883,10 +881,10 @@ corals_cant
 11
 
 MONITOR
-27
-429
-167
-474
+410
+451
+550
+496
 microplasticos en costa
 microplastic_coast
 17
@@ -894,10 +892,10 @@ microplastic_coast
 11
 
 SWITCH
-277
-464
+214
+339
 391
-497
+372
 coast-clean?
 coast-clean?
 1
@@ -905,15 +903,37 @@ coast-clean?
 -1000
 
 MONITOR
-28
-485
-167
-530
+555
+451
+694
+496
 NIL
 coral-affect
 17
 1
 11
+
+INPUTBOX
+213
+234
+296
+294
+indice
+1.0
+1
+0
+Number
+
+INPUTBOX
+303
+233
+391
+293
+umbral
+1.0
+1
+0
+Number
 
 @#$#@#$#@
 ![Plastic Movement](file:../data/info/h.jpg)
