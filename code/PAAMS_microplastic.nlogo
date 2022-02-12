@@ -15,7 +15,6 @@ globals [
   patches-with-no-data  ; patches sin data para la interpolacion
   corals_cant           ; contador auxiliar para corales en foreach que los carga
   microplastic_coast    ; plasticos en la costa
-  coral-affect
 
 ]
 
@@ -50,7 +49,6 @@ to setup
   gis:set-world-envelope-ds [-180 180 -60 72]                                 ; defino mundo
   set microplastic_coast 0
   set corals_cant 0
-  set coral-affect 0
   reset-ticks         ; limpio ticks
 end
 
@@ -377,8 +375,9 @@ to add-coral-from-data
         ; 2.158.003 2077 ciclos son 17504
             ]
 
-    set corals_cant (corals_cant + 1)
+    ;set corals_cant (corals_cant + 1)
     ; 17504
+    set corals_cant count corals
     ]
   ]
 
@@ -414,9 +413,32 @@ end
 
 
 to coral-sick
-  if 1 = 1
-  ;umbral > (random-prob * neighbors-microplastic * prob)
-  [ die ]
+  ask corals
+  [
+    ;set microplastic-near sum [Pieces_KM2] of microplasticos-on neighbors            ; hay un problema con los datos, no tiene datos la bdd
+    ;set microplastic-near count microplasticos-on neighbors                          ; los conte y con los vecinos procedi
+    set microplastic-near count microplasticos-on neighbors ;cuento los microplasticos cerca y la funcion me devuelve una probabilidad de muerte por cercania
+    if umbral < (random-prob * neighbors-microplastic * prob)
+    [
+      set color orange
+      ;die
+    ]
+  ]
+
+; este enfoque funciona pero me quedo con los corales en el mismo patch que los microplasticos y no puedo preguntar por los vecinos para aplicar la formula
+;  ask microplasticos
+;  [
+;    if any? corals-on patch-here                                  ; para los corales que tienen microplasticos ejecuto la probabilidad de enfermar
+;    [
+;      ask corals-here
+;      [
+;        if 1 = 1
+;        umbral > (random-prob * microplastic-near * prob)   ;
+;        [ die ]
+;      ]
+;    ]
+;  ]
+
 end
 
 
@@ -424,9 +446,9 @@ to-report random-prob
   report random-float 1 * indice
 end
 
+
 to-report neighbors-microplastic
-  report 1
-  ; haciendo
+  report random-float 1 * microplastic-near / 100
 end
 
 
@@ -475,9 +497,7 @@ end
 
 
 to microplastic-movement                                            ; Funcion que mueve microplasticos Adaptacion ambiental
-  ; con esto verifico si enferma o no los corales
-  ;coral-sick               ; aun no funciona
-  ; no funciona tampoco la forma de preguntar corales, vecinos y luego ver los microplasticos unicamente
+  coral-sick                                                        ; con esto verifico si enferma o no los corales
 
 ; esto funciona !!! para matar microplasticos con corales
 ;  ask corals
@@ -489,8 +509,6 @@ to microplastic-movement                                            ; Funcion qu
 ;      [ die ]
 ;    ]
 ;  ]
-
-
 
 
 ; no funciono
@@ -507,7 +525,6 @@ to microplastic-movement                                            ; Funcion qu
 ;      ;code sick
 ;    ]
 ;  ]
-
 
 
 ; no funciono
@@ -543,15 +560,6 @@ to microplastic-movement                                            ; Funcion qu
 
   ask microplasticos
   [
-    if any? corals-on patch-here                                  ; para los corales que tienen microplasticos ejecuto la probabilidad de enfermar
-    [
-      ask corals-here
-      [
-        print 1
-        coral-sick
-      ]
-    ]
-
     if pcolor = blue                                                ;  para los microplasticos en el agua ejecuto la dinamica del movimiento
     [
 
@@ -940,7 +948,7 @@ MONITOR
 784
 496
 corales
-corals_cant
+count corals
 0
 1
 11
@@ -973,7 +981,7 @@ MONITOR
 694
 496
 NIL
-coral-affect
+count turtles
 17
 1
 11
