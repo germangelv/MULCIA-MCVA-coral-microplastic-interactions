@@ -1,3 +1,9 @@
+;
+; Trabajo MCVA - Análisis del efecto de la biodegradabilidad en las islas de basura oceanicas
+;   Realizado por: Borrego Villa, Joaquín
+;                  Jimenez Núñez, Marina
+;                  Lorentz Vieta, Germán
+;                  Montes Grova, Marco A.
 extensions [
   gis
 ]
