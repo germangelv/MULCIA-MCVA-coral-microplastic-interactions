@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<metadata xml:lang="en">
+	<idinfo>
+		<citation>
+			<citeinfo>
+				<origin>World Resources Institute</origin>
+				<pubdate>2011</pubdate>
+				<serinfo>
+					<sername>Reefs at Risk Revisited</sername>
+				</serinfo>
+				<pubinfo>
+					<pubplace>Washington, DC, United States</pubplace>
+					<publish>World Resources Institute</publish>
+				</pubinfo>
+				
+				
+				<title>Tropical Coral Reefs of the World</title><ftname Sync="TRUE">reef_500_poly</ftname><geoform Sync="TRUE">vector digital data</geoform><othercit>&lt;div&gt;Burke, L., K. Reytar, M. Spalding, and A. Perry. Reefs at Risk
+  Revisited.  (Washington, DC, USA: World Resources Institute, 2011).&amp;nbsp;&lt;/div&gt;
+&lt;div&gt;
+  &lt;br /&gt;&lt;/div&gt;
+&lt;div&gt;Online linkages:&amp;nbsp;&lt;a
+    href="http://www.wri.org/reefs"&gt;www.wri.org/reefs&lt;/a&gt;&amp;nbsp;and&amp;nbsp;&lt;a
+    href="http://imars.usf.edu/MC/index.html" style="font-weight: inherit;font-style: inherit;vertical-align: baseline;"&gt;http://imars.usf.edu/MC/index.html&lt;/a&gt;&lt;/div&gt;</othercit><onlink /></citeinfo>
+		<citeinfo /><citeinfo /><citeinfo /></citation>
+		<descript>
+			<purpose>Global map of shallow, tropical coral reefs, gridded at 500-m resolution for use in the Reefs at Risk Revisited project.</purpose>
+			<supplinf>The coral reef location data were compiled from multiple sources by UNEP-WCMC, the WorldFish Center, and WRI. To standardize these data for the purposes of the Reefs at Risk Revisited project, data were converted to raster format (ESRI grid) at 500-m resolution. The original sources for the data include: - Institute for Marine Remote Sensing, University of South Florida (IMaRS/USF) and Institut de Recherche pour le Développement (IRD). Millennium Coral Reef Mapping Project, 2009 (30 m Landsat data classified and converted to shapefile). - UNEP-WCMC. Coral Reef Map, 2002. - Additional data have been acquired or digitized from a variety of sources. Scales typically range from 1:60,000 to 1:1,000,000. Sources include: the United Kingdom Hydrographic Office, Petroconsultants (CES) Ltd, NOAA, UNEP/IUCN, United States Department of the Interior (USDI) Geological Survey, Department of Lands and Survey (DLS), Directorate of Overseas Surveys (DOS), Great Barrier Reef Marine Park Authority, Wildlife Conservation Society-Fiji, Florida Department of Environmental Protection, Instituto Geográfico Nacional (IGN), Reefs at Risk in Southeast Asia (World Resources Institute), National Mapping and Resources Information Authority (NAMRIA), Digital Chart of the World, Google Earth, REBIOMA, World Wildlife Fund-Salary Bay, Shell, and University of the Philippines Marine Sciences Institute.</supplinf>
+			<langdata Sync="TRUE">en</langdata><abstract>Reef locations are based on 500 meter resolution gridded data (converted
+to polygon) reflecting shallow, tropical coral reefs of the world.
+Organizations contributing to the data and development of the map
+include the Institute for Marine Remote Sensing, University of South
+Florida (IMaRS/USF), Institut de Recherche pour le D&amp;eacute;veloppement
+(IRD), UNEP-WCMC, The World Fish Center, and WRI. The composite data set
+was compiled from multiple sources, incorporating products from the
+Millennium Coral Reef Mapping Project prepared by IMaRS/USF and IRD.</abstract></descript>
+		<timeperd>
+			<timeinfo><sngdate>2011</sngdate>
+				
+			<current /></timeinfo>
+			<current>publication date</current><timeinfo /><timeinfo /><timeinfo /></timeperd>
+		<status>
+			<progress>Complete</progress>
+			<update>None planned</update>
+		</status>
+		<spdom>
+			<bounding>
+				<westbc Sync="TRUE">-180.000000</westbc>
+				<eastbc Sync="TRUE">180.000000</eastbc>
+				<northbc Sync="TRUE">32.518077</northbc>
+				<southbc Sync="TRUE">-32.041436</southbc>
+			</bounding>
+			<lboundng><leftbc Sync="TRUE">-18663507.067162</leftbc><rightbc Sync="TRUE">14601492.932838</rightbc><bottombc Sync="TRUE">-3365385.331926</bottombc><topbc Sync="TRUE">3410114.668074</topbc></lboundng><bounding /><bounding /><bounding /></spdom>
+		<keywords>
+			
+			<place>
+				<placekt>world</placekt>
+				<placekey>global</placekey>
+			</place>
+		<theme><themekey>coral reefs</themekey><themekey>reefs</themekey><themekt>Data Basin tags</themekt></theme></keywords>
+		<accconst>None</accconst>
+		<useconst>Data set is not for use in litigation. While efforts have been made to ensure that these data are accurate and reliable, WRI cannot assume liability for any damages or misrepresentations caused by any inaccuracies in the data, or as a result of the data used on a particular system. WRI makes no warranty, expressed or implied, nor does the fact of distribution constitute such a warranty.</useconst>
+		<ptcontac>
+			<cntinfo>
+				<cntorgp>
+					<cntorg>World Resources Institute</cntorg>
+				<cntper>GIS Data Manager, World Resources Institute (reefsatrisk@wri.org)</cntper></cntorgp>
+				
+				
+				<hours>9 am - 5 pm EST</hours>
+			</cntinfo>
+		<cntinfo /><cntinfo /><cntinfo /></ptcontac>
+		<native Sync="TRUE">Microsoft Windows XP Version 5.1 (Build 2600) Service Pack 3; ESRI ArcCatalog 9.3.1.3000</native>
+		<natvform Sync="TRUE">Shapefile</natvform><datacred>Institute for Marine Remote Sensing, University of South Florida (IMaRS/USF), Institut de Recherche pour le Développement (IRD), UNEPWCMC, The WorldFish Center and WRI, 2011. Global coral reefs composite data set compiled from multiple sources, incorporating products from the Millennium Coral Reef Mapping Project prepared by IMaRS/USF and IRD.</datacred></idinfo>
+	<distinfo>
+		<distrib>
+			<cntinfo>
+				<cntorgp>
+					<cntorg>World Resources Institute</cntorg>
+					<cntper>GIS Data Manager</cntper></cntorgp>
+				<cntvoice>202-729-7653</cntvoice><cntvoice>202-729-7600</cntvoice><cntemail>reefsatrisk@wri.org</cntemail></cntinfo>
+		</distrib>
+		<resdesc>Downloadable Data and Data CD</resdesc>
+		<stdorder><digform><digtinfo><transize Sync="TRUE">11.985</transize><dssize Sync="TRUE">11.985</dssize></digtinfo></digform></stdorder></distinfo>
+	<metainfo>
+		<metd Sync="TRUE">20110217</metd>
+		<metc>
+			<cntinfo>
+				<cntorgp>
+					<cntorg>World Resources Institute</cntorg>
+					<cntper>GIS Data Manager</cntper></cntorgp>
+				<cntaddr>
+					<addrtype>mailing and physical address</addrtype>
+					<city>Washington</city>
+					<state>DC</state>
+					<postal>20002</postal>
+					<address>10 G Street NE Suite 800</address><country>United States</country></cntaddr>
+				<cntvoice>202-729-7600</cntvoice><cntemail>reefsatrisk@wri.org</cntemail></cntinfo>
+		</metc>
+		<metstdn Sync="TRUE">FGDC Content Standards for Digital Geospatial Metadata</metstdn>
+		<metstdv Sync="TRUE">FGDC-STD-001-1998</metstdv>
+		<mettc Sync="TRUE">local time</mettc>
+		<langmeta Sync="TRUE">en</langmeta><metextns><onlink Sync="TRUE">http://www.esri.com/metadata/esriprof80.html</onlink><metprof Sync="TRUE">ESRI Metadata Profile</metprof></metextns></metainfo>
+	<Esri><CreaDate>20110307</CreaDate><CreaTime>15301000</CreaTime><SyncOnce>FALSE</SyncOnce><ModDate>20110217</ModDate><ModTime>19485300</ModTime><SyncDate>20110217</SyncDate><SyncTime>19484600</SyncTime><ArcGISFormat>1.0</ArcGISFormat><ArcGISstyle>Item Description</ArcGISstyle><DataProperties><itemProps><itemLocation><linkage Sync="TRUE">file://\\ROGUE\C$\Users\david\Desktop\uploaded Layer packages\reef_500_poly\commondata\data0\reef_500_poly</linkage><protocol Sync="TRUE">Local Area Network</protocol></itemLocation></itemProps><copyHistory><copy source="C:\Users\david\Desktop\WRI reefs\reefs_at_risk_revisited_base_data\Base_Data\Reefs\reef_500_poly" dest="\\ROGUE\C$\Users\david\Desktop\uploaded Layer packages\reef_500_poly\commondata\data0\reef_500_poly" date="20110307" time="15301000" /></copyHistory></DataProperties></Esri><dataqual><lineage><procstep><procdesc Sync="TRUE">Metadata imported.</procdesc><srcused Sync="TRUE">M:\Working\R@R_2008\Data\Data_CD_Dev\Data_for_Web1\Base_Data\Reefs\reef_500\metadata.xml</srcused><procdate Sync="TRUE">20110214</procdate><proctime Sync="TRUE">17584700</proctime></procstep></lineage><attracc><attraccr></attraccr></attracc><complete></complete></dataqual><mdDateSt Sync="TRUE">20110217</mdDateSt><spref><horizsys><cordsysn><geogcsn Sync="TRUE">GCS_WGS_1984</geogcsn><projcsn Sync="TRUE">WGS_1984_Cylindrical_Equal_Area</projcsn></cordsysn><geodetic><horizdn Sync="TRUE">D_WGS_1984</horizdn><ellips Sync="TRUE">WGS_1984</ellips><semiaxis Sync="TRUE">6378137.000000</semiaxis><denflat Sync="TRUE">298.257224</denflat></geodetic><planar><planci><plance Sync="TRUE">coordinate pair</plance><plandu Sync="TRUE">meters</plandu><coordrep><absres Sync="TRUE">0.000000</absres><ordres Sync="TRUE">0.000000</ordres></coordrep></planci><mapproj><mapprojp><stdparll Sync="TRUE">0.000000</stdparll><longcm Sync="TRUE">-160.000000</longcm><feast Sync="TRUE">0.000000</feast><fnorth Sync="TRUE">0.000000</fnorth></mapprojp></mapproj></planar></horizsys></spref><dataIdInfo><envirDesc Sync="TRUE">Microsoft Windows XP Version 5.1 (Build 2600) Service Pack 3; ESRI ArcCatalog 9.3.1.3000</envirDesc><dataLang><languageCode Sync="TRUE" value="en" /></dataLang><idCitation><resTitle Sync="TRUE">reef_500_poly</resTitle><presForm><PresFormCd Sync="TRUE" value="005" /></presForm></idCitation><spatRpType><SpatRepTypCd Sync="TRUE" value="001" /></spatRpType><dataExt><geoEle><GeoBndBox esriExtentType="native"><westBL Sync="TRUE">-18663507.067162</westBL><eastBL Sync="TRUE">14601492.932838</eastBL><northBL Sync="TRUE">3410114.668074</northBL><southBL Sync="TRUE">-3365385.331926</southBL><exTypeCode Sync="TRUE">1</exTypeCode></GeoBndBox></geoEle></dataExt><geoBox esriExtentType="decdegrees"><westBL Sync="TRUE">-180</westBL><eastBL Sync="TRUE">180</eastBL><northBL Sync="TRUE">32.518077</northBL><southBL Sync="TRUE">-32.041436</southBL><exTypeCode Sync="TRUE">1</exTypeCode></geoBox></dataIdInfo><mdLang><languageCode Sync="TRUE" value="en" /></mdLang><mdStanName Sync="TRUE">ISO 19115 Geographic Information - Metadata</mdStanName><mdStanVer Sync="TRUE">DIS_ESRI1.0</mdStanVer><mdChar><CharSetCd Sync="TRUE" value="004" /></mdChar><mdHrLv><ScopeCd Sync="TRUE" value="005" /></mdHrLv><mdHrLvName Sync="TRUE">dataset</mdHrLvName><distInfo><distributor><distorTran><onLineSrc><linkage Sync="TRUE">file://\\WRICSAP029333\GIS\Working\R@R_2008\Data\Data_CD_Dev\Data_for_Web1\Base_Data\Reefs\reef_500_poly.shp</linkage><protocol Sync="TRUE">Local Area Network</protocol><orDesc Sync="TRUE">002</orDesc></onLineSrc><transSize Sync="TRUE">11.985</transSize></distorTran><distorFormat><formatName Sync="TRUE">Shapefile</formatName></distorFormat></distributor></distInfo><spdoinfo><direct Sync="TRUE">Vector</direct><rastinfo><rasttype Sync="TRUE">Grid Cell</rasttype><rowcount Sync="TRUE">25456</rowcount><colcount Sync="TRUE">80150</colcount><rastxsz Sync="TRUE">500.000000</rastxsz><rastysz Sync="TRUE">500.000000</rastysz><rastbpp Sync="TRUE">8</rastbpp><vrtcount Sync="TRUE">1</vrtcount><rastorig Sync="TRUE">Upper Left</rastorig><rastcmap Sync="TRUE">FALSE</rastcmap><rastcomp Sync="TRUE">Default</rastcomp><rastband Sync="TRUE">1</rastband><rastdtyp Sync="TRUE">matrix values</rastdtyp><rastplyr Sync="TRUE">FALSE</rastplyr><rastifor Sync="TRUE">GRID</rastifor></rastinfo></spdoinfo><refSysInfo><RefSystem><refSysID><identCode Sync="TRUE">WGS_1984_Cylindrical_Equal_Area</identCode></refSysID></RefSystem></refSysInfo><spatRepInfo><GridSpatRep><numDims Sync="TRUE">2</numDims><cellGeo><CellGeoCd Sync="TRUE" value="002" /></cellGeo><tranParaAv Sync="TRUE">1</tranParaAv><axDimProps><Dimen><dimName><DimNameTypCd Sync="TRUE" value="002" /></dimName><dimSize Sync="TRUE">80150</dimSize><dimResol><value Sync="TRUE">500</value><uom><UomLength><uomName Sync="TRUE">Meter</uomName><conversionToISOstandardUnit Sync="TRUE">1 Meter = 1 Meter(s)</conversionToISOstandardUnit></UomLength></uom></dimResol></Dimen><Dimen><dimName><DimNameTypCd Sync="TRUE" value="001" /></dimName><dimSize Sync="TRUE">25456</dimSize><dimResol><value Sync="TRUE">500</value><uom><UomLength><uomName Sync="TRUE">Meter</uomName><conversionToISOstandardUnit Sync="TRUE">1 Meter = 1 Meter(s)</conversionToISOstandardUnit></UomLength></uom></dimResol></Dimen></axDimProps></GridSpatRep><VectSpatRep><topLvl><TopoLevCd Sync="TRUE" value="001" /></topLvl><geometObjs Name="reef_500_poly"><geoObjTyp><GeoObjTypCd Sync="TRUE" value="001" /></geoObjTyp><geoObjCnt Sync="TRUE">1</geoObjCnt></geometObjs></VectSpatRep></spatRepInfo><eainfo><detailed Name="reef_500_poly"><enttyp><enttypl Sync="TRUE">reef_500_poly</enttypl><enttypt Sync="TRUE">Feature Class</enttypt><enttypc Sync="TRUE">1</enttypc></enttyp><attr><attrlabl Sync="TRUE">FID</attrlabl><attalias>FID</attalias><attrtype Sync="TRUE">OID</attrtype><attwidth Sync="TRUE">4</attwidth><atprecis Sync="TRUE">0</atprecis><attscale Sync="TRUE">0</attscale><attrdef>Internal feature number.</attrdef><attrdefs Sync="TRUE">ESRI</attrdefs><attrdomv><udom Sync="TRUE">Sequential unique whole numbers that are automatically generated.</udom></attrdomv></attr><attr><attrlabl Sync="TRUE">Shape</attrlabl><attalias Sync="TRUE">Shape</attalias><attrtype Sync="TRUE">Geometry</attrtype><attwidth Sync="TRUE">0</attwidth><atprecis Sync="TRUE">0</atprecis><attscale Sync="TRUE">0</attscale><attrdef Sync="TRUE">Feature geometry.</attrdef><attrdefs Sync="TRUE">ESRI</attrdefs><attrdomv><udom Sync="TRUE">Coordinates defining the features.</udom></attrdomv></attr><attr><attrlabl Sync="TRUE">GRIDCODE</attrlabl><attalias>GRIDCODE</attalias><attrtype Sync="TRUE">Number</attrtype><attwidth Sync="TRUE">10</attwidth><attrdef>Coral Reefs</attrdef><attrdomv /></attr><attr><attrlabl>Shape</attrlabl><attalias>Shape</attalias><attrdef>Feature geometry.</attrdef><attrdomv /></attr><attr><attrlabl>Shape</attrlabl><attalias>Shape</attalias><attrdef>Feature geometry.</attrdef><attrdomv /></attr></detailed></eainfo></metadata>

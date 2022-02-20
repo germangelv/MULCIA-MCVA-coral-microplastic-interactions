@@ -1,3 +1,10 @@
+;
+; Trabajo MCVA - Análisis del efecto de la biodegradabilidad en las islas de basura oceanicas
+;   Realizado por: Borrego Villa, Joaquín
+;                  Jimenez Núñez, Marina
+;                  Lorentz Vieta, Germán
+;                  Montes Grova, Marco A.
+
 extensions [
   gis
 ]
@@ -30,182 +37,106 @@ patches-own [         ; agente mundo
 
 
 to setup
-  clear-all           ; limpia todo
-  gis:load-coordinate-system "../data/countries/cntry.prj"                    ; carga datos de GIS world map
-  set countries-dataset gis:load-dataset "../data/countries/cntry.shp"        ; carga el data set
-  gis:set-world-envelope-ds [-180 180 -60 72]                                 ; defino mundo
-  reset-ticks         ; limpio ticks
+  clear-all
+  gis:load-coordinate-system "../data/countries/cntry.prj"
+  set countries-dataset gis:load-dataset "../data/countries/cntry.shp"
+  gis:set-world-envelope-ds [-180 180 -60 72]
+  reset-ticks
 end
 
 
 
-to load-data                                                                  ; carga datos oceanicos
-  set currents-data gis:load-dataset "../data/dataFolder/latest_file.shp"     ; carga dataset
-  add-currents-data   ; agrega corrientes en formato vectorial desde archivos
+to load-data
+  set currents-data gis:load-dataset "../data/dataFolder/latest_file.shp"
+  add-currents-data
 end
 
 
 
-to display-map                                                                ; Muestra mapa
-  gis:apply-coverage countries-dataset "SQKM" area                            ; El campo SQKM tiene el area del pais
+to display-map
+  gis:apply-coverage countries-dataset "SQKM" area
   ask patches
   [
-    ifelse (area > 0 )                                                        ; Asigno azul al oceano y blanco a la tierra
+    ifelse (area > 0 )
     [ set pcolor brown ]
     [ set pcolor blue ]
   ]
 
 end
 
+to plastic-movement
+  ask turtles[
+    ifelse p = 2
+    [if pcolor = blue
+      [ set heading direction
+        if patch-ahead 2 != nobody
+        [ let c [pcolor] of patch-ahead 2
+          let lat2 [p_lat] of patch-ahead 2
+          let lon2 [p_long] of patch-ahead 2
 
+          ; If scale-mag is true, then the magnitude of currents data is used. Else turtle is moved 1 unit.
+          ifelse scale-mag?
+          [cal-distance t_lon t_lat]
+          [fd 1]
+        ]
+      ]
+    ]
+    [ ifelse useful-life > 0
+      [ set useful-life (useful-life - 1)
+        if pcolor = blue
+        [ set heading direction
+          if patch-ahead 2 != nobody
+          [  let c [pcolor] of patch-ahead 2
+            let lat2 [p_lat] of patch-ahead 2
+            let lon2 [p_long] of patch-ahead 2
 
-;to plastic-movement                                                 ; Plastic movement function.
-;
-;  ask turtles
-;  [
-;      ifelse p = 2                                                  ; not biodegradable plastic movement
-;            [ let i 0
-;              while [ i <= 15]
-;                    [ set i (i + 1)
-;                      if pcolor = blue
-;                         [ set heading direction
-;                           if patch-ahead 2 != nobody
-;                              [ let c [pcolor] of patch-ahead 2
-;                                let lat2 [p_lat] of patch-ahead 2
-;                                let lon2 [p_long] of patch-ahead 2
-;
-;                                ifelse scale-mag?                                           ; If scale-mag is true, then the magnitude of currents data is used. Else turtle is moved 1 unit.
-;                                       [
-;                                         cal-distance t_lon t_lat
-;                                       ]
-;                                       [
-;                                         fd 1
-;                                       ]
-;                             ]
-;                         ]
-;
-;                     ]
-;            ]
-;
-;            [  let i  0
-;               while [ i <= 15]
-;                     [ set i (i + 1)
-;                       ifelse useful-life > 0
-;                              [ set useful-life (useful-life - 1)
-;                                if pcolor = blue
-;                                    [ set heading direction
-;                                      if patch-ahead 2 != nobody
-;                                         [  let c [pcolor] of patch-ahead 2
-;                                            let lat2 [p_lat] of patch-ahead 2
-;                                            let lon2 [p_long] of patch-ahead 2
-;
-;                                            ifelse scale-mag?                                           ; If scale-mag is true, then the magnitude of currents data is used. Else turtle is moved 1 unit.
-;                                                   [
-;                                                     cal-distance t_lon t_lat
-;
-;                                                   ]
-;                                                   [
-;                                                     fd 1
-;                                                   ]
-;                                        ]
-;                                   ]
-;                              ]
-;                              [
-;                                die
-;                              ]
-;                    ]
-;          ]
-;  ]
-;
-;  tick
-;
-;end
-
-to plastic-movement                                                 ; Plastic movement function.
-
-  ask turtles
-  [ ifelse p = 2                                                  ; not biodegradable plastic movement
-          [if pcolor = blue
-              [ set heading direction
-                if patch-ahead 2 != nobody
-                   [ let c [pcolor] of patch-ahead 2
-                     let lat2 [p_lat] of patch-ahead 2
-                     let lon2 [p_long] of patch-ahead 2
-
-                     ifelse scale-mag?                                           ; If scale-mag is true, then the magnitude of currents data is used. Else turtle is moved 1 unit.
-                            [
-                              cal-distance t_lon t_lat
-                            ]
-                            [
-                              fd 1
-                            ]
-                    ]
-               ]
-
-           ]
-
-           [ ifelse useful-life > 1095
-                    [ set useful-life (useful-life - 1)
-                          if pcolor = blue
-                             [ set heading direction
-                               if patch-ahead 2 != nobody
-                                  [  let c [pcolor] of patch-ahead 2
-                                     let lat2 [p_lat] of patch-ahead 2
-                                     let lon2 [p_long] of patch-ahead 2
-
-                                     ifelse scale-mag?                                           ; If scale-mag is true, then the magnitude of currents data is used. Else turtle is moved 1 unit.
-                                            [
-                                              cal-distance t_lon t_lat
-
-                                            ]
-                                            [
-                                                     fd 1
-                                            ]
-                                  ]
-                            ]
-                     ]
-                     [
-                      die
-                     ]
-           ]
- ]
+            ifelse scale-mag?
+            [cal-distance t_lon t_lat]
+            [fd 1]
+          ]
+        ]
+      ]
+      [
+        die
+      ]
+    ]
+    if (pcolor = "brown")[die]
+  ]
   tick
-
 end
 
 
-to cal-distance [lon1 lat1]                                        ; displace the turtle location and update turtle lat, lon attributes.
+to cal-distance [lon1 lat1]
 
   let R 6378.1
   let b direction
   let d magnitude
   let lat2 asin (
-                        ( sin lat1 * cos ( (d / R) * 57.2958 )  ) +
-                        ( cos lat1 * sin ( (d / R) * 57.2958 ) * cos b )
+    ( sin lat1 * cos ( (d / R) * 57.2958 )  ) +
+    ( cos lat1 * sin ( (d / R) * 57.2958 ) * cos b )
 
-                )
+  )
   let lol atan  ( sin(b) * sin ( (d / R) * 57.2958 ) * cos(lat1)  )   (  cos ( (d / R) * 57.2958 ) - ( sin(lat1) * sin(lat2) ) )
   let lon2 0
-  ifelse  lol > 180 and lol <= 360 [
-                                       set lon2 lon1 + lol - 360
-                                   ][
-                                       set lon2 lon1 +  lol
-                                   ]
+  ifelse  lol > 180 and lol <= 360
+  [set lon2 lon1 + lol - 360]
+  [set lon2 lon1 +  lol]
+
   ; Calculated lat2, lon2 using haversine formula
-  let target-location gis:project-lat-lon lat2 lon2                ; Projecting lat, lon to Netlogo world coordinates
+  let target-location gis:project-lat-lon lat2 lon2
   if not empty? target-location [
-       let target-location-xcor item 0 target-location
-       let target-location-ycor item 1 target-location
-       setxy target-location-xcor target-location-ycor             ; Updating turtle location
-       set t_lat lat2
-       set t_lon lon2
+    let target-location-xcor item 0 target-location
+    let target-location-ycor item 1 target-location
+    setxy target-location-xcor target-location-ycor
+    set t_lat lat2
+    set t_lon lon2
   ]
 
 end
 
 
 
-to add-plastic-from-mouse                                                         ; Creates plastic at the mouse click point
+to add-plastic-from-mouse
 
   if plastic-quantity = 0
   [
@@ -235,7 +166,7 @@ end
 
 
 
-to add-plastic-rand                                ; Function to create plastic randomly
+to add-plastic-rand
 
   create-turtles 10000
   [
@@ -253,7 +184,7 @@ end
 
 
 
-to add-currents-data                               ; Reads ocean surface currents data shape file and extracts feature vectors
+to add-currents-data
 
   foreach gis:feature-list-of currents-data
   [
@@ -270,7 +201,7 @@ to add-currents-data                               ; Reads ocean surface current
 end
 
 
-to fetch-currents-data [vector-feature long-coord lat-coord]                             ; extracts data fields from the shape file feature vector
+to fetch-currents-data [vector-feature long-coord lat-coord]
 
   let lat gis:property-value vector-feature "FIELD_1"
   let long gis:property-value vector-feature "FIELD_2"
@@ -281,13 +212,13 @@ to fetch-currents-data [vector-feature long-coord lat-coord]                    
 end
 
 
-to assign-currents-data-to-patch [lat long VNCMS VECMS long-coord lat-coord]       ; Assings the data read from shape file to patch
+to assign-currents-data-to-patch [lat long VNCMS VECMS long-coord lat-coord]
 
   if VNCMS != 0 and VECMS != 0[
     if (patch long-coord lat-coord != nobody) [
     ask patch long-coord lat-coord
     [
-      set speed-north ( VNCMS * 86400 / 100000)                                    ; Speed is converted to km/day
+      set speed-north ( VNCMS * 86400 / 100000)
       set speed-east ( VECMS * 86400 / 100000)
       set p_lat lat
       set p_long long
@@ -300,16 +231,16 @@ end
 
 
 
-to assign-currents                                                         ; Cal resultant speed and direction from north direction velocity and east direction velocity
+to assign-currents
 
-  set magnitude sqrt ( speed-north * speed-north + speed-east * speed-east )                                ; Assigning value to patches
+  set magnitude sqrt ( speed-north * speed-north + speed-east * speed-east )
   set direction atan speed-east speed-north
 
 end
 
 
 
-to interpolate-data                                         ; Function to assign data to all the patches without data
+to interpolate-data
   set patches-with-no-data no-data
   set-value-to-neighbour-patches
   let after-interpolation-data no-data
@@ -320,7 +251,7 @@ to interpolate-data                                         ; Function to assign
 end
 
 
-to set-value-to-neighbour-patches                             ; Assign average value to the patch from neighbor patches
+to set-value-to-neighbour-patches
 
   ask patches
   [
@@ -343,15 +274,12 @@ to set-value-to-neighbour-patches                             ; Assign average v
 end
 
 
-to-report no-data                  ; Counts the patches with data
-
+to-report no-data
   report count patches with [ magnitude = 0 ]
-
 end
 
 
-to show-data                        ; Displays patches with data on screen in green color
-
+to show-data
   ask patches
   [
     if magnitude = 0 and direction = 0 and not (area > 0)
@@ -363,11 +291,10 @@ to show-data                        ; Displays patches with data on screen in gr
     set pcolor green
     ]
   ]
-
 end
 
 
-to clear-screen                     ; Reverts screen colors back to normal; use this after show-data function call
+to clear-screen
   ask patches
   [
     if not (area > 0)
@@ -378,12 +305,12 @@ to clear-screen                     ; Reverts screen colors back to normal; use 
 end
 
 
-to clean-plastic                   ; clears all the plastic.
+to clean-plastic
   ask turtles [ die ]
 end
 
 
-to add-plastic-from-data                                                ; Creates plastic for the area selected
+to add-plastic-from-data
   if plastic-data  = "atlantic"
   [
     add-plastic-from-data-atlantic
@@ -392,30 +319,34 @@ to add-plastic-from-data                                                ; Create
   [
     add-plastic-from-data-australia
   ]
+  if (plastic-data = "Marine Pollution")
+  [
+    add-plastic-from-data-marine-pollution
+  ]
 end
 
 
-to add-plastic-from-data-atlantic                                        ; Reads shape file and creates turtles at lat long fetched from shape data
+to add-plastic-from-data-atlantic
 
   set plastic-shore-data gis:load-dataset "../data/atlantic_plastic/plastic_shore.shp"
   foreach gis:feature-list-of plastic-shore-data
   [
     vector-feature ->
     let plastic-coord-tuple gis:location-of (first (first (gis:vertex-lists-of vector-feature)))
-    let countofplastic gis:property-value vector-feature "PIECESKM2"                                ; cantidad de plasticos
+    let countofplastic gis:property-value vector-feature "PIECESKM2"
     if not empty? plastic-coord-tuple
     [
       let plastic-long-coord item 0 plastic-coord-tuple
       let plastic-lat-coord item 1 plastic-coord-tuple
       let scale 1000
-      create-turtles-from-data plastic-long-coord plastic-lat-coord countofplastic "none" scale     ; sin color los crea y la cantidad es countofplastic
+      create-turtles-from-data plastic-long-coord plastic-lat-coord countofplastic "none" scale
     ]
   ]
 
 end
 
 
-to add-plastic-from-data-australia                                              ; Reads shape file and creates turtles at lat long fetched from shape data
+to add-plastic-from-data-australia
 
   set plastic-shore-data gis:load-dataset "../data/australia_plastic/australia_plastic.shp"
   foreach gis:feature-list-of plastic-shore-data
@@ -433,15 +364,36 @@ to add-plastic-from-data-australia                                              
 end
 
 
+to-report check-if-inside-world-limits [long-coord lat-coord]
+  ifelse (long-coord > -180) and (long-coord < 180) and
+         (lat-coord > -60) and (lat-coord < 72)
+  [ report true ]
+  [ report false ]
+end
 
-to fetch-plastic-data-australia [plastic-long-coord plastic-lat-coord vector-feature]                 ; Function to read fields from shape file
 
-  let cd1 gis:property-value vector-feature "CD1"                                                     ; cantidad de plasticos que seran amarillos
-  let cd2 gis:property-value vector-feature "CD2"                                                     ; cantidad de plasticos que seran naranjas
-  let cd3 gis:property-value vector-feature "CD3"                                                     ; cantidad de plasticos que seran rojos
-  let cd4 gis:property-value vector-feature "CD4"                                                     ; cantidad de plasticos que seran verdes
+to add-plastic-from-data-marine-pollution
+
+  set plastic-shore-data gis:load-dataset "../data/PlasticMarinePollution/PlasticMarinePollution.shp"
+  foreach gis:feature-list-of plastic-shore-data
+  [
+    vector-feature ->
+    let plastic-lat-coord read-from-string gis:property-value vector-feature "Field2"
+    let plastic-long-coord read-from-string gis:property-value vector-feature "Field3"
+    if (check-if-inside-world-limits plastic-long-coord plastic-lat-coord)[
+      fetch-plastic-data-marine-pollution plastic-long-coord plastic-lat-coord vector-feature]
+  ]
+
+end
+
+to fetch-plastic-data-australia [plastic-long-coord plastic-lat-coord vector-feature]
+
+  let cd1 gis:property-value vector-feature "CD1"
+  let cd2 gis:property-value vector-feature "CD2"
+  let cd3 gis:property-value vector-feature "CD3"
+  let cd4 gis:property-value vector-feature "CD4"
   let scale 100
-  create-turtles-from-data plastic-long-coord plastic-lat-coord cd1 yellow scale                       ; Creating turtles from the data read
+  create-turtles-from-data plastic-long-coord plastic-lat-coord cd1 yellow scale
   create-turtles-from-data plastic-long-coord plastic-lat-coord cd2 orange scale
   create-turtles-from-data plastic-long-coord plastic-lat-coord cd3 red scale
   create-turtles-from-data plastic-long-coord plastic-lat-coord cd4 green scale
@@ -449,9 +401,22 @@ to fetch-plastic-data-australia [plastic-long-coord plastic-lat-coord vector-fea
 end
 
 
+to fetch-plastic-data-marine-pollution [plastic-long-coord plastic-lat-coord vector-feature]                 ; Function to read fields from shape file
 
-to create-turtles-from-data [plastic-long-coord plastic-lat-coord plastic-count plastic-color scale]      ; Function to create turtles from the shape file data
+  let cd1 gis:property-value vector-feature "Field4"
+  let cd2 gis:property-value vector-feature "Field5"
+  let cd3 gis:property-value vector-feature "Field6"
+  let cd4 gis:property-value vector-feature "Field7"
+  let scale 3000 ; Valor experimental para manejar el tamaño del dataset
+  create-turtles-from-data plastic-long-coord plastic-lat-coord cd1 yellow scale
+  create-turtles-from-data plastic-long-coord plastic-lat-coord cd2 orange scale
+  create-turtles-from-data plastic-long-coord plastic-lat-coord cd3 red scale
+  create-turtles-from-data plastic-long-coord plastic-lat-coord cd4 green scale
 
+end
+
+
+to create-turtles-from-data [plastic-long-coord plastic-lat-coord plastic-count plastic-color scale]
   if (plastic-count != nobody) and (plastic-count != "") and (read-from-string plastic-count != 0)
   [
     create-turtles int (read-from-string plastic-count / scale)
@@ -463,13 +428,13 @@ to create-turtles-from-data [plastic-long-coord plastic-lat-coord plastic-count 
     if plastic-color != "none" [set color plastic-color]
     ]
   ]
-assign-lat-lon-to-turtle
-assign-useful-life
-assign-biodegradability-to-turtle
-
+  assign-lat-lon-to-turtle
+  assign-useful-life
+  assign-biodegradability-to-turtle
 end
 
-to read-chunk [chunk-path]                                                        ; Function to load currents data from a shape file (world)
+
+to read-chunk [chunk-path]   ; Function to load currents data from a shape file (world)
   let my-data gis:load-dataset chunk-path
   foreach gis:feature-list-of my-data
   [
@@ -490,7 +455,7 @@ to read-chunk [chunk-path]                                                      
 end
 
 
-to assign-lat-lon-to-turtle                             ; Assigns turtles with the lat, lon with patch data turtle is on when created
+to assign-lat-lon-to-turtle ; Assigns turtles with the lat, lon with patch data turtle is on when created
   ask turtles [
     set t_lat p_lat
     set t_lon p_long
@@ -498,8 +463,8 @@ to assign-lat-lon-to-turtle                             ; Assigns turtles with t
 end
 
 
-
-to   assign-biodegradability-to-turtle   ; Assigns turtles p=1 or p=2 depending on whether the turtle is a biodegradable plastic or not and on the amount of biodegrable plastic
+; Assigns turtles p=1 or p=2 depending on whether the turtle is a biodegradable plastic or not and on the amount of biodegrable plastic
+to assign-biodegradability-to-turtle
   if percentage-bio-plastic = ""
  [
     show "WARNING, No quantity of biodegradable plastics are considered" stop
@@ -508,7 +473,6 @@ to   assign-biodegradability-to-turtle   ; Assigns turtles p=1 or p=2 depending 
   let h ((count turtles * read-from-string percentage-bio-plastic) - (count turtles with [p = 1]))
   ask n-of h turtles with [p = 0] [set p 1]
   ask turtles with [p = 0] [set p 2 set useful-life 36500]
-
 end
 
 to assign-useful-life    ; Assigns turtles a range of useful lifetime
@@ -520,11 +484,6 @@ to assign-useful-life    ; Assigns turtles a range of useful lifetime
     [ask turtles with [p = 0] [set useful-life (1095 + random 2555)]]
    )
 end
-
-
-
-
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 406
@@ -541,7 +500,7 @@ GRAPHICS-WINDOW
 1
 0
 1
-0
+1
 1
 -180
 180
@@ -658,7 +617,7 @@ plastic-quantity
 plastic-quantity
 0
 5000
-500.0
+1300.0
 50
 1
 NIL
@@ -773,8 +732,8 @@ CHOOSER
 221
 plastic-data
 plastic-data
-"atlantic" "australia"
-0
+"atlantic" "australia" "Marine Pollution"
+2
 
 SWITCH
 204
@@ -783,7 +742,7 @@ SWITCH
 396
 scale-mag?
 scale-mag?
-0
+1
 1
 -1000
 
@@ -793,7 +752,7 @@ INPUTBOX
 177
 488
 percentage-bio-plastic
-0.8
+0.7
 1
 0
 String
@@ -806,11 +765,12 @@ CHOOSER
 useful-life-bioplastic
 useful-life-bioplastic
 "3-5 years" "3-7 years" "3-10 years"
-0
+2
 
 @#$#@#$#@
 ![Plastic Movement](file:../data/info/h.jpg)
 
+Trabajo para la asignatura de Métodos Computacionales para la Vida Artificial. Basado en el desarrollo expuesto a continuación y modificado para ésta asignatura.
 
 ## OVERVIEW
 * A lot of plastic waste is being dumped into the oceans in the recent decades.

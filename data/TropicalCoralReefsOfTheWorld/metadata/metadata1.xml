@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <idinfo>
+    <descript>
+      <abstract>Reef locations are based on 500 meter resolution gridded data (converted to polygon) reflecting shallow, tropical coral reefs of the world. Organizations contributing to the data and development of the map include the Institute for Marine Remote Sensing, University of South Florida (IMaRS/USF), Institut de Recherche pour le D&amp;#233;veloppement (IRD), UNEP-WCMC, The World Fish Center, and WRI. The composite data set was compiled from multiple sources, incorporating products from the Millennium Coral Reef Mapping Project prepared by IMaRS/USF and IRD.</abstract>
+      <purpose>Global map of shallow, tropical coral reefs, gridded at 500-m resolution for use in the Reefs at Risk Revisited project.</purpose>
+      <supplinf />
+    </descript>
+    <useconst>Data set is not for use in litigation. While efforts have been made to ensure that these data are accurate and reliable, WRI cannot assume liability for any damages or misrepresentations caused by any inaccuracies in the data, or as a result of the data used on a particular system. WRI makes no warranty, expressed or implied, nor does the fact of distribution constitute such a warranty.</useconst>
+    <datacred>Institute for Marine Remote Sensing, University of South Florida (IMaRS/USF), Institut de Recherche pour le D&amp;#233;veloppement (IRD), UNEPWCMC, The WorldFish Center and WRI, 2011. Global coral reefs composite data set compiled from multiple sources, incorporating products from the Millennium Coral Reef Mapping Project prepared by IMaRS/USF and IRD.</datacred>
+    <citation>
+      <citeinfo>
+        <title>Tropical Coral Reefs of the World</title>
+        <pubdate />
+        <othercit>Burke, L., K. Reytar, M. Spalding, and A. Perry. Reefs at Risk Revisited. (Washington, DC, USA: World Resources Institute, 2011).&amp;#160; 
+ Online linkages:&amp;#160;www.wri.org/reefs (http://www.wri.org/reefs)&amp;#160;and&amp;#160;http://imars.usf.edu/MC/index.html</othercit>
+        <origin>World Resources Institute</origin>
+        <onlink>http://app.databasin.org/app/pages/datasetPage.jsp?id=b983863c0a1a41e8839383b40ade437d</onlink>
+        <pubinfo>
+          <publish />
+          <pubplace />
+        </pubinfo>
+      </citeinfo>
+    </citation>
+    <ptcontac>
+      <cntinfo>
+        <cntperp>
+          <cntper>GIS Data Manager, World Resources Institute (reefsatrisk@wri.org)</cntper>
+          <cntorg>World Resources Institute</cntorg>
+        </cntperp>
+      </cntinfo>
+    </ptcontac>
+    <status>
+      <progress />
+      <update />
+    </status>
+    <timeperd>
+      <timeinfo>
+        <sngdate>2011</sngdate>
+        <current />
+      </timeinfo>
+    </timeperd>
+    <keywords>
+      <theme>
+        <themekey>coral reefs</themekey>
+        <themekey>reefs</themekey>
+        <themekt>Data Basin tags</themekt>
+      </theme>
+    </keywords>
+    <spdom>
+      <bounding>
+        <northbc>32.5180770936159</northbc>
+        <eastbc>179.9999885408441</eastbc>
+        <southbc>-32.04143611566038</southbc>
+        <westbc>-179.9999885408441</westbc>
+      </bounding>
+    </spdom>
+  </idinfo>
+  <dataqual>
+    <attracc>
+      <attraccr />
+    </attracc>
+    <complete />
+    <lineage />
+  </dataqual>
+  <eainfo>
+    <detailed>
+      <attr>
+        <attrlabl>FID</attrlabl>
+        <attalias>FID</attalias>
+        <attrdef>Internal feature number.</attrdef>
+        <attrdomv />
+      </attr>
+      <attr>
+        <attrlabl>Shape</attrlabl>
+        <attalias>Shape</attalias>
+        <attrdef>Feature geometry.</attrdef>
+        <attrdomv />
+      </attr>
+      <attr>
+        <attrlabl>GRIDCODE</attrlabl>
+        <attalias>GRIDCODE</attalias>
+        <attrdef>Coral Reefs</attrdef>
+        <attrdomv />
+      </attr>
+    </detailed>
+  </eainfo>
+  <distinfo>
+    <distrib>
+      <cntinfo>
+        <cntorgp>
+          <cntorg>Data Basin</cntorg>
+          <cntper>Data Basin Administrator</cntper>
+        </cntorgp>
+        <cntaddr>
+          <addrtype>physical address</addrtype>
+          <address>136 SW Washington Ave, Suite 202</address>
+          <city>Corvallis</city>
+          <state>OR</state>
+          <postal>97333</postal>
+          <country>USA</country>
+        </cntaddr>
+        <cntvoice>541-757-0687</cntvoice>
+        <cntemail>databasin_admin@consbio.org</cntemail>
+      </cntinfo>
+    </distrib>
+    <resdesc>Tropical Coral Reefs of the World</resdesc>
+    <distliab>No warranty is made by Data Basin for use of this dataset.  No warranty is made by Data Basin regarding the accuracy, reliability, or completeness of this dataset. In no event shall Data Basin have any liability whatsoever for payment of any consequential, incidental, indirect, special, or tort damages of any kind, including, but not limited to, any loss of profits arising out of the use or reliance on the geographic or attribute data contained within this dataset or arising out of the delivery, installation, operation, or support by Data Basin.</distliab>
+    <stdorder>
+      <digform>
+        <digtinfo>
+          <formname>Shapefile Feature Class</formname>
+          <formvern>ArcGIS  10</formvern>
+          <formspec>Shapefile Feature Class</formspec>
+          <filedec>No compression applied</filedec>
+        </digtinfo>
+        <digtopt>
+          <onlinopt>
+            <computer>
+              <networka>
+                <networkr>http://app.databasin.org/app/pages/datasetPage.jsp?id=b983863c0a1a41e8839383b40ade437d</networkr>
+              </networka>
+            </computer>
+            <accinstr>Download from http://databasin.org</accinstr>
+          </onlinopt>
+        </digtopt>
+      </digform>
+      <fees>None</fees>
+      <ordering>Download from http://databasin.org</ordering>
+    </stdorder>
+    <techpreq>ESRI ArcGIS Desktop and supporting operating systems.</techpreq>
+  </distinfo>
+</metadata>
+
