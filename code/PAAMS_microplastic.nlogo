@@ -789,7 +789,7 @@ SWITCH
 322
 scale-mag?
 scale-mag?
-1
+0
 1
 -1000
 
