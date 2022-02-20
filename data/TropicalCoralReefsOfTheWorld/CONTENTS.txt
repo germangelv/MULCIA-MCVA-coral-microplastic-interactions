@@ -1,0 +1,35 @@
+# Dataset Title
+Tropical Coral Reefs of the World
+
+
+# URL
+http://databasin.org/datasets/b983863c0a1a41e8839383b40ade437d
+
+
+# Dataset Type
+ArcGIS
+
+
+# Credits
+World Resources Institute
+
+
+# Uploaded By
+[World Resources Institute](http://databasin.org/people/WorldResourcesInstitute)
+
+
+# Description
+Reef locations are based on 500 meter resolution gridded data (convertedto polygon) reflecting shallow, tropical coral reefs of the world.Organizations contributing to the data and development of the mapinclude the Institute for Marine Remote Sensing, University of SouthFlorida (IMaRS/USF), Institut de Recherche pour le Développement(IRD), UNEP-WCMC, The World Fish Center, and WRI. The composite data setwas compiled from multiple sources, incorporating products from theMillennium Coral Reef Mapping Project prepared by IMaRS/USF and IRD.
+
+
+# Use Constraints
+Data set is not for use in litigation. While efforts have been made to ensure that these data are accurate and reliable, WRI cannot assume liability for any damages or misrepresentations caused by any inaccuracies in the data, or as a result of the data used on a particular system. WRI makes no warranty, expressed or implied, nor does the fact of distribution constitute such a warranty.
+
+
+### Original Metadata
+metadata/metadata1_original.xml
+
+
+### Data Basin Metadata
+metadata/metadata1.xml
+
