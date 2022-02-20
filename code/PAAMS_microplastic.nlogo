@@ -1,5 +1,5 @@
 ;
-; Trabajo MCVA - Análisis del efecto de la biodegradabilidad en las islas de basura oceanicas
+; Trabajo MCVA - Análisis del efecto del microplastico en la salud de los arrecifes de corales
 ;   Realizado por: Borrego Villa, Joaquín
 ;                  Jimenez Núñez, Marina
 ;                  Lorentz Vieta, Germán
@@ -344,7 +344,7 @@ end
 ; selector de datos coral
 to add-coral-from-data
   reset-timer
-  set corals-dataset gis:load-dataset "../data/fixed/fixed.shp"
+  set corals-dataset gis:load-dataset "../data/WCMC008_CoralReef2018_v4_fixed/fixed.shp"
   ; set corals-dataset gis:load-dataset  "../data/WCMC008_CoralReefs2018/01_Data/WCMC008_CoralReef2018_Py_v4_1.shp"
   foreach gis:feature-list-of corals-dataset [                                    ; el coral-dataset cargado anteriormente
     this-vector-feature ->
@@ -526,26 +526,6 @@ to cal-distance [lon1 lat1]                                         ; funcion pa
     set t_lon lon2
   ]
 end
-
-
-;to read-chunk [chunk-path]                                                        ; Función para cargar datos actuales desde un archivo (mundo)
-;  let my-data gis:load-dataset chunk-path
-;  foreach gis:feature-list-of my-data
-;  [
-;    vector-feature ->
-;    let coord-tuple gis:location-of (first (first (gis:vertex-lists-of vector-feature)))
-;    if not empty? coord-tuple
-;    [
-;      let long-coord item 0 coord-tuple
-;      let lat-coord item 1 coord-tuple
-;      let lat gis:property-value vector-feature "FIELD_1"
-;      let long gis:property-value vector-feature "FIELD_2"
-;      let VNCMS gis:property-value vector-feature "FIELD_4"
-;      let VECMS gis:property-value vector-feature "FIELD_3"
-;      assign-currents-data-to-patch lat long VNCMS VECMS long-coord lat-coord
-;    ]
-;  ]
-;end
 @#$#@#$#@
 GRAPHICS-WINDOW
 406
