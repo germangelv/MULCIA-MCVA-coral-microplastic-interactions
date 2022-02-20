@@ -284,7 +284,6 @@ end
 
 ; selector de datos microplasticos
 to add-microplastic-from-data-adventure-scientits                            ; Crea tortugas con datos de micro-microplasticos
-; DEBE CREAR TORTUGA MICROPLASTICO Y NO PLASTICO CREO SINO NO SE PARA QUE ES LA ESCALA
   set microplastic-as-data gis:load-dataset "../data/AdventureScientist_microplastic/AdventureScientist_microplastic.shp"
   foreach gis:feature-list-of microplastic-as-data
   [
@@ -341,12 +340,6 @@ to add-coral-from-data
   reset-timer
   set corals-dataset gis:load-dataset "../data/fixed/fixed.shp"
   ; set corals-dataset gis:load-dataset  "../data/WCMC008_CoralReefs2018/01_Data/WCMC008_CoralReef2018_Py_v4_1.shp"
-  ; print gis:property-names corals-dataset
-  ; output [LAYER_NAME METADATA_I ORIG_NAME FAMILY GENUS SPECIES DATA_TYPE START_DATE END_DATE DATE_TYPE VERIF NAME LOC_DEF SURVEY_MET GIS_AREA_K SHAPE_LENG SHAPE_AREA REP_AREA_K]
-  ; print  gis:shape-type-of corals-dataset
-  ; output POLYGON
-  ;gis:apply-coverage corals-dataset "GIS_AREA_K" area                                   ; GIS shape file has SQKM feild which has area of the country
-
   foreach gis:feature-list-of corals-dataset [                                    ; el coral-dataset cargado anteriormente
     this-vector-feature ->
     let curr-area gis:property-value this-vector-feature "GIS_AREA_K"              ; en esa area crearemos corales
@@ -381,12 +374,12 @@ end
 to coral-sick
   ask corals
   [
-    ;neighbors-microplastic ( sum [Pieces_KM2] of microplasticos-on neighbors )                 ;hay un problema con los datos, no tiene datos la bdd
-    ;neighbors-microplastic ( count microplasticos-on neighbors )                               ;usa a los vecinos para considerar al coral enfermo si esta rodeado
+    ;neighbors-microplastic ( sum [Pieces_KM2] of microplasticos-on neighbors )                 ; hay un problema con los datos, no tiene datos la bdd
+    ;neighbors-microplastic ( count microplasticos-on neighbors )                               ; usa a los vecinos para considerar al coral enfermo si esta rodeado
     set prob (random-prob * neighbors-microplastic (count microplasticos-on neighbors) * prob)  ; corregi funcion para calcular la probabilidad de enfermar de cada coral
     if umbral < prob
     [
-      ;set color orange
+      ;set color yellow                                                 ; para visualizarlos y verificar el modelo
       die
     ]
   ]
@@ -454,6 +447,7 @@ end
 
 
 to microplastic-movement                                            ; Funcion que mueve microplasticos Adaptacion ambiental
+
   coral-sick                                                        ; con esto verifico si enferma o no los corales
   ask microplasticos
   [
@@ -480,6 +474,21 @@ to microplastic-movement                                            ; Funcion qu
       ]
     ]
 
+  ]
+  if ticks = 365                                       ; print 365 dias
+  [ print 365
+    print count corals
+    print (count corals / max-corals)
+  ]
+  if ticks = 1095                                      ; print 3 años
+  [ print 1095
+    print count corals
+    print (count corals / max-corals)
+  ]
+  if ticks = 1825                                      ; print 5 años
+  [ print 1825
+    print count corals
+    print (count corals / max-corals)
   ]
   tick                                                              ; paso
 end
@@ -818,7 +827,7 @@ CHOOSER
 microplastic-data
 microplastic-data
 "AdventureScientits" "SEA" "GEOMAR"
-1
+0
 
 BUTTON
 26
