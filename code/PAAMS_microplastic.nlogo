@@ -15,6 +15,7 @@ globals [
   patches-with-no-data  ; patches sin data para la interpolacion
   corals_cant           ; contador auxiliar para corales en foreach que los carga
   microplastic_coast    ; plasticos en la costa
+  max-corals            ; cantidad de corales mientras se ejecuta netlogo
 
 ]
 
@@ -49,6 +50,7 @@ to setup
   gis:set-world-envelope-ds [-180 180 -60 72]                                 ; defino mundo
   set microplastic_coast 0
   set corals_cant 0
+  set max-corals 0
   reset-ticks         ; limpio ticks
 end
 
@@ -307,7 +309,7 @@ to add-microplastic-from-data-SEA
     let countofmicroplastic gis:property-value vector-feature "Pieces_KM2"
     let scale 1     ; 1 because is microplastic
     if check-if-inside-world-limits microplastic-long-coord microplastic-lat-coord      ; verifica que este en el mapa
-    [ create-turtles-from-data microplastic-long-coord microplastic-lat-coord countofmicroplastic "none" scale ]
+    [ create-turtles-from-data microplastic-long-coord microplastic-lat-coord countofmicroplastic magenta scale ]
   ]
 end
 
@@ -322,7 +324,7 @@ to add-microplastic-from-data-GEOMAR
     let countofmicroplastic gis:property-value vector-feature "MP_conc__p"
     let scale 1     ; 1 because is microplastic
     if check-if-inside-world-limits microplastic-long-coord microplastic-lat-coord        ; verifica que este en el mapa
-    [ create-turtles-from-data microplastic-long-coord microplastic-lat-coord countofmicroplastic "none" scale ]
+    [ create-turtles-from-data microplastic-long-coord microplastic-lat-coord countofmicroplastic magenta scale ]
   ]
 end
 
@@ -337,71 +339,35 @@ end
 ; selector de datos coral
 to add-coral-from-data
   reset-timer
-  set corals-dataset gis:load-dataset "../data/WCMC008_CoralReef2018_Py_v4_10percent/WCMC008_CoralReef2018_Py_v4_10percent.shp"
+  set corals-dataset gis:load-dataset "../data/fixed/fixed.shp"
   ; set corals-dataset gis:load-dataset  "../data/WCMC008_CoralReefs2018/01_Data/WCMC008_CoralReef2018_Py_v4_1.shp"
   ; print gis:property-names corals-dataset
   ; output [LAYER_NAME METADATA_I ORIG_NAME FAMILY GENUS SPECIES DATA_TYPE START_DATE END_DATE DATE_TYPE VERIF NAME LOC_DEF SURVEY_MET GIS_AREA_K SHAPE_LENG SHAPE_AREA REP_AREA_K]
   ; print  gis:shape-type-of corals-dataset
   ; output POLYGON
-  gis:apply-coverage corals-dataset "GIS_AREA_K" area                                   ; GIS shape file has SQKM feild which has area of the country
-
-  ;let microplastic-long-coord gis:property-value vector-feature "Longitude"
-  ;let microplastic-lat-coord gis:property-value vector-feature "Latitude"
-  ;let countofmicroplastic gis:property-value vector-feature "Total_Piec"
-; este codigo es para verlos como patches a los corales
-;  ask patches
-;  [
-;    if (area > 0 )                                                               ; asigna color dle oceano rojo (no se para que)
-;    [ set pcolor red ; para verlos en el mapa
-;      set corals_cant (corals_cant + 1)
-;    ]
-;  ]
-; aca termina eso de ver como patch al coral
-
+  ;gis:apply-coverage corals-dataset "GIS_AREA_K" area                                   ; GIS shape file has SQKM feild which has area of the country
 
   foreach gis:feature-list-of corals-dataset [                                    ; el coral-dataset cargado anteriormente
     this-vector-feature ->
     let curr-area gis:property-value this-vector-feature "GIS_AREA_K"              ; en esa area crearemos corales
-    if (curr-area != nobody) and (curr-area != "") and (curr-area > 0)
+    if (curr-area != nobody) and (curr-area != "") and (curr-area > 120)
     [
             gis:create-turtles-inside-polygon this-vector-feature corals 1
             [
               set size 3
               set t_lat p_lat
               set t_lon p_long
-              set prob random-float 1
+              set prob quality-of-corals
               set color green
-        ;     set corals_cant (corals_cant + 1)
-        ; 2.158.003 2077 ciclos son 17504
-            ]
 
-    ;set corals_cant (corals_cant + 1)
-    ; 17504
+            ]
+      set max-corals max-corals + 1
     set corals_cant count corals
     ]
   ]
 
   type "Elapsed seconds loading corals dataset: " type timer type "\n"
 end
-
-;["LOC_DEF":"Backreef / shallow lagoon"]
-;["ORIG_NAME":"Scott and Seringapatam Reefs"]
-;["GIS_AREA_K":"69.7911352807"]
-;["SURVEY_MET":"Not Reported"]
-;["GENUS":"Not Reported"]
-;["SPECIES":"Not Reported"]
-;["LAYER_NAME":"CRR"]
-;["END_DATE":"31/12/1998"]
-;["START_DATE":"08/10/1993"]
-;["DATE_TYPE":"DD"]
-;["SHAPE_AREA":"0.00583694823084"]
-;["REP_AREA_K":"Not Reported"]
-;["FAMILY":"Not Reported"]
-;["NAME":"Scott and Seringapatam Reefs"]
-;["SHAPE_LENG":"6.97059831373"]
-;["METADATA_I":"72.0"]
-;["VERIF":"Not Reported"]
-;["DATA_TYPE":"Remotely sensed; field survey"]
 
 to assign-lat-lon-to-corals                             ; Asigna tortuga con lat y long del patch data (comunicacion patch tortuga)
   ask corals                                     ; ojo que aca consulto por microplasticos y en create-turtles-from-data claramente hago create-turtles
@@ -416,24 +382,25 @@ to coral-sick
   ask corals
   [
     ;neighbors-microplastic ( sum [Pieces_KM2] of microplasticos-on neighbors )                 ;hay un problema con los datos, no tiene datos la bdd
-    ;set microplastic-near count microplasticos-on neighbors                                    ;cuento los microplasticos cerca y la funcion me devuelve una probabilidad de muerte por cercania
+    ;neighbors-microplastic ( count microplasticos-on neighbors )                               ;usa a los vecinos para considerar al coral enfermo si esta rodeado
     set prob (random-prob * neighbors-microplastic (count microplasticos-on neighbors) * prob)  ; corregi funcion para calcular la probabilidad de enfermar de cada coral
     if umbral < prob
     [
-      set color orange
-      ;die
+      ;set color orange
+      die
     ]
   ]
 end
 
 
 to-report random-prob
-  report random-float 1 * indice
+  report random-float 1 * indice                                         ; este valor random hace aleatorio el proceso de los vecinos
 end
 
 
-to-report neighbors-microplastic [var]
-  report random-float 1 * var / 300
+to-report neighbors-microplastic [amount]
+  ; report (1 - amount / 250)                                            ; basado en Pieces_KM2 No funciona por los datos
+  report (1 - amount / 8 )                                               ; cantidad maxima de vecinos 8, si es ocho devuelve cero, si es cero devuelve uno y sobrevive
 end
 
 
@@ -466,7 +433,7 @@ to add-microplastic-rand                                            ; funcion pa
   [
     setxy random-xcor random-ycor
     set size 2                                                       ; tamanio 2
-    set color yellow
+    set color magenta
     if area > 0                                                      ; evitar areas no significativas
       [die]
     if pcolor != blue
@@ -478,6 +445,11 @@ end
 
 to clean-microplastics                                              ; clears all the microplastic.
   ask microplasticos [ die ]
+end
+
+
+to clean-corals                                              ; clears all the microplastic.
+  ask corals [ die ]
 end
 
 
@@ -589,9 +561,9 @@ ticks
 
 BUTTON
 28
-37
+35
 204
-70
+68
 NIL
 setup\n
 NIL
@@ -606,9 +578,9 @@ NIL
 
 BUTTON
 213
-37
+35
 394
-70
+68
 NIL
 display-map
 NIL
@@ -623,9 +595,9 @@ NIL
 
 BUTTON
 28
-424
-205
-457
+417
+206
+450
 NIL
 add-microplastic-rand
 NIL
@@ -639,11 +611,11 @@ NIL
 1
 
 BUTTON
-27
-303
-206
-373
-NIL
+26
+289
+207
+365
+run microplastic-movement
 microplastic-movement
 T
 1
@@ -656,10 +628,10 @@ NIL
 1
 
 BUTTON
-30
-381
-206
-414
+26
+373
+205
+406
 NIL
 add-microplastic-from-mouse
 T
@@ -673,21 +645,21 @@ NIL
 1
 
 MONITOR
-796
-451
-877
-496
-microplasticos
+638
+449
+720
+494
+microplastics
 count microplasticos
-17
+0
 1
 11
 
 SLIDER
 215
-381
+373
 397
-414
+406
 microplastic-quantity
 microplastic-quantity
 0
@@ -700,9 +672,9 @@ HORIZONTAL
 
 BUTTON
 213
-82
+80
 395
-115
+113
 NIL
 interpolate-data
 NIL
@@ -716,10 +688,10 @@ NIL
 1
 
 BUTTON
-28
-130
-204
-163
+27
+125
+203
+158
 display patches data
 show-data
 NIL
@@ -734,9 +706,9 @@ NIL
 
 BUTTON
 213
-129
+125
 395
-162
+158
 clear display
 clear-screen
 NIL
@@ -750,10 +722,10 @@ NIL
 1
 
 BUTTON
-213
-425
-395
-458
+214
+417
+396
+450
 clean microplastics
 clean-microplastics
 NIL
@@ -785,9 +757,9 @@ NIL
 
 BUTTON
 28
-83
+80
 204
-116
+113
 NIL
 load-data
 NIL
@@ -811,10 +783,10 @@ plastic-data
 0
 
 SWITCH
-213
-302
-390
-335
+214
+289
+396
+322
 scale-mag?
 scale-mag?
 1
@@ -823,9 +795,9 @@ scale-mag?
 
 BUTTON
 213
-181
-391
-226
+166
+396
+211
 NIL
 add-microplastic-from-data
 NIL
@@ -840,19 +812,19 @@ NIL
 
 CHOOSER
 26
-181
+166
 204
-226
+211
 microplastic-data
 microplastic-data
 "AdventureScientits" "SEA" "GEOMAR"
-0
+1
 
 BUTTON
-27
-235
-206
-295
+26
+221
+145
+281
 NIL
 add-coral-from-data
 NIL
@@ -866,32 +838,32 @@ NIL
 1
 
 MONITOR
-702
-451
-784
-496
-corales
+550
+449
+632
+494
+corals
 count corals
 0
 1
 11
 
 MONITOR
-410
-451
-550
-496
-microplasticos en costa
+727
+449
+867
+494
+coast-microplastics
 microplastic_coast
-17
+0
 1
 11
 
 SWITCH
-214
-339
-391
-372
+213
+331
+396
+364
 coast-clean?
 coast-clean?
 1
@@ -899,21 +871,21 @@ coast-clean?
 -1000
 
 MONITOR
-555
-451
-694
-496
-NIL
+405
+449
+544
+494
+total-agents
 count turtles
-17
+0
 1
 11
 
 INPUTBOX
-213
-234
-296
-294
+150
+221
+221
+281
 indice
 1.0
 1
@@ -921,15 +893,54 @@ indice
 Number
 
 INPUTBOX
-303
-233
-391
-293
+228
+221
+298
+281
 umbral
-0.0
+0.6
 1
 0
 Number
+
+INPUTBOX
+303
+221
+396
+281
+quality-of-corals
+0.8
+1
+0
+Number
+
+MONITOR
+875
+449
+1017
+494
+quality-to-live-of-corals
+count corals / max-corals
+3
+1
+11
+
+BUTTON
+27
+460
+397
+493
+clean corals
+clean-corals
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ![Plastic Movement](file:../data/info/h.jpg)
